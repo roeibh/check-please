@@ -94,6 +94,12 @@ and re-measure.
 mating move. Lichess returns **200 either way**, so no status code reveals it. Moves are
 `encodeURIComponent`-ed; `test/lichess.test.js` pins it.
 
+**A cache TTL is not a freshness policy.** The GitHub star count was cached for 24 hours and
+returned early on a hit, so anyone who starred the repo kept seeing the old number for the rest of
+the day. Cache to avoid an empty slot and to survive rate limits, then **always revalidate**: paint
+the cached value, fetch, repaint if it changed. The archive cache is the deliberate exception, and
+only because a completed month is genuinely immutable.
+
 **`QuotaExceededError` is an expected path, not an exception.** One prolific player's monthly
 archive can exceed the entire ~5 MB origin quota. The cache is an optimisation; the caller must
 still get its games when caching fails.

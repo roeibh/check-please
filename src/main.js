@@ -527,18 +527,32 @@ $('copy-link').addEventListener('click', async () => {
   catch { toast('Clipboard blocked by the browser.') }
 })
 
-// Star count, cached for a day. Failure is silent — it's decoration.
+/**
+ * Star count, stale-while-revalidate.
+ *
+ * The cache exists to avoid an empty slot on load and to survive GitHub's
+ * anonymous rate limit, NOT to freeze the number. An earlier version served a
+ * cached value for 24h, so anyone who starred the repo kept seeing the old
+ * count for the rest of the day. Paint whatever we have, then refresh.
+ */
 ;(async () => {
   const KEY = 'cp:stars'
+  const FLOOR = 3e5 // 5 min: enough to stop a reload loop hammering GitHub
+
+  let cached = null
+  try { cached = JSON.parse(localStorage.getItem(KEY) || 'null') } catch { /* corrupt */ }
+  if (cached && typeof cached.n === 'number') paintStars(cached.n)
+
+  if (cached && Date.now() - cached.at < FLOOR) return
+
   try {
-    const c = JSON.parse(localStorage.getItem(KEY) || 'null')
-    if (c && Date.now() - c.at < 864e5) return paintStars(c.n)
     const r = await fetch('https://api.github.com/repos/roeibh/check-please')
-    if (!r.ok) return
+    if (!r.ok) return // rate-limited or offline: the cached value stands
     const { stargazers_count: n } = await r.json()
+    if (typeof n !== 'number') return
     localStorage.setItem(KEY, JSON.stringify({ at: Date.now(), n }))
     paintStars(n)
-  } catch { /* decoration only */ }
+  } catch { /* decoration only, never surface this */ }
 })()
 
 function paintStars(n) {
