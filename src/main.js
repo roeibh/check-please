@@ -42,6 +42,7 @@ function show(view) {
 }
 
 function status(title, body, actions = [], piece = 'bk') {
+  stopSkeletonTimer()
   const box = $('status')
   const art = el('div', 'status__art')
   art.innerHTML = pieceSvg(piece)
@@ -57,6 +58,7 @@ function status(title, body, actions = [], piece = 'bk') {
   show('status')
 }
 
+let slowTimer
 function skeletons(n = 6) {
   show('games')
   $('list').replaceChildren(...Array.from({ length: n }, () => {
@@ -65,7 +67,16 @@ function skeletons(n = 6) {
     return li
   }))
   $('tally').textContent = 'Loading games from chess.com…'
+
+  // chess.com has no pagination: a month arrives whole, and a prolific player's
+  // is megabytes. Say so rather than leaving the same message sitting there.
+  clearTimeout(slowTimer)
+  slowTimer = setTimeout(() => {
+    $('tally').textContent = 'Still loading. This account has a lot of games, and chess.com sends the whole month at once.'
+  }, 2000)
 }
+
+const stopSkeletonTimer = () => clearTimeout(slowTimer)
 
 function toast(msg) {
   const t = $('toast')
@@ -188,6 +199,7 @@ function setRail(rate) {
 
 /* ── Rendering ─────────────────────────────────────────────── */
 function render() {
+  stopSkeletonTimer()
   show('games')
 
   // Populate speed filter from what this player actually plays.
@@ -290,14 +302,48 @@ function renderLastLoss() {
 // annoyed who wants an answer, not a scoresheet.
 const OUTCOME_WORD = { win: 'Won', loss: 'Lost', draw: 'Drew' }
 
+/**
+ * Boards are drawn only once they are close to the viewport.
+ *
+ * Each one is 64 rects plus up to 32 <use> clones, so forty of them up front
+ * is real work on a phone, and most of it is below the fold. The row reserves
+ * the space via aspect-ratio, so filling it later shifts nothing.
+ */
+const boardObserver = 'IntersectionObserver' in window
+  ? new IntersectionObserver((entries, obs) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue
+        drawBoard(e.target)
+        obs.unobserve(e.target)
+      }
+    }, { rootMargin: '400px 0px' }) // start a screen early, so scrolling never catches it
+  : null
+
+function drawBoard(node) {
+  if (node.dataset.drawn) return
+  node.dataset.drawn = '1'
+  node.innerHTML = boardSvg(node.dataset.fen, { flip: !!node.dataset.flip })
+}
+
+function observeBoard(node) {
+  // No IntersectionObserver: draw immediately rather than showing nothing.
+  if (!boardObserver) return drawBoard(node)
+  boardObserver.observe(node)
+}
+
 function row(game) {
   const { outcome, color, me, them, reason } = playerResult(game, state.user)
   const li = el('li', `row row--${outcome}`)
 
   // The board is the result cell: the final position of that game, labelled.
+  // It is NOT drawn here. Building 40 boards up front delays the list on a
+  // slow device for pixels that are mostly below the fold, so each one is
+  // deferred until it is about to be seen. See observeBoard.
   const cell = el('div', 'row__game')
   const board = el('div', 'row__board')
-  board.innerHTML = boardSvg(game.fen, { flip: color === 'black' })
+  board.dataset.fen = game.fen || ''
+  board.dataset.flip = color === 'black' ? '1' : ''
+  observeBoard(board)
   const label = el('div', 'row__label', OUTCOME_WORD[outcome])
   cell.append(board, label)
   cell.setAttribute('role', 'img')
@@ -400,9 +446,14 @@ function reviewButton(game) {
   b.setAttribute('aria-label',
     'Full review of this game on Lichess with blunders and accuracy. Imports the game, which makes it public on Lichess. Opens in a new tab.')
   b.addEventListener('click', () => {
+    // A form POST is a navigation, so the new tab may take a moment to appear.
+    // Show that something happened rather than leaving the button looking dead.
+    b.disabled = true
+    b.textContent = 'Opening…'
     submitImport(game.pgn)
     toast('Opening Lichess. Click "Request a computer analysis" there.')
     nudgeLater()
+    setTimeout(() => { b.disabled = false; b.textContent = 'Review' }, 2500)
   })
   return b
 }

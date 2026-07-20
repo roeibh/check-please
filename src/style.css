@@ -328,7 +328,8 @@ input::placeholder { color: var(--muted); opacity: 1; }
 /* The board is the result cell: real final position, plain-word label under it.
    The word carries the result, so nothing depends on hue. */
 .row__game { border: 1.5px solid var(--ink); background: var(--ink); }
-.row__board { line-height: 0; }
+/* Square is reserved up front so a lazily drawn board shifts nothing. */
+.row__board { line-height: 0; aspect-ratio: 1; background: oklch(0.66 0.095 70); }
 .row__label {
   font: 600 .68rem/1 var(--display);
   padding: .28rem 0; text-align: center;
@@ -532,3 +533,5 @@ input::placeholder { color: var(--muted); opacity: 1; }
     transition-duration: .001ms !important;
   }
 }
+
+.review:disabled { opacity: .6; cursor: default; }
