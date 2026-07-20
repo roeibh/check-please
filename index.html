@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Check Please — free chess.com game analysis on Lichess</title>
+<meta name="description" content="Type your chess.com username and open any game in Lichess's free engine analysis. No signup, no paywall, nothing stored on a server.">
+<meta name="theme-color" content="#121A26">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Check Please — free chess.com game analysis">
+<meta property="og:description" content="Type your chess.com username and open any game in Lichess's free engine analysis. No signup, no paywall.">
+<meta property="og:url" content="https://roeibh.github.io/check-please/">
+<meta property="og:image" content="https://roeibh.github.io/check-please/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Check Please — free chess.com game analysis">
+<meta name="twitter:description" content="Open any chess.com game in Lichess's free engine analysis. No signup.">
+<meta name="twitter:image" content="https://roeibh.github.io/check-please/og.png">
+
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="manifest" href="./manifest.webmanifest">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.chess.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+
+<!-- Signature element: page-edge evaluation bar, filled to the visible win rate. -->
+<div class="rail" aria-hidden="true"><div class="rail__fill" id="rail-fill"></div></div>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <a class="brand" href="./" aria-label="Check Please home">
+    <span class="brand__mark" aria-hidden="true"></span>
+    <span class="brand__text">check please</span>
+  </a>
+  <button id="theme" class="icon-btn" type="button" aria-label="Switch colour theme">
+    <span class="theme-glyph" aria-hidden="true"></span>
+  </button>
+</header>
+
+<main id="main">
+
+  <!-- ── Landing ─────────────────────────────────────────────── -->
+  <section id="landing" class="landing">
+    <h1 class="hero">Your chess.com games,<br>analysed free on Lichess.</h1>
+    <p class="sub">Type your username. Open any game in a real engine. No signup, no paywall, nothing stored on a server.</p>
+
+    <form id="user-form" class="user-form" novalidate>
+      <label class="sr-only" for="username">chess.com username</label>
+      <div class="field">
+        <input id="username" name="username" type="text" inputmode="text"
+               autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
+               placeholder="chess.com username" enterkeyhint="go" required>
+        <button class="go" type="submit">Show games</button>
+      </div>
+      <p id="form-error" class="form-error" role="alert" hidden></p>
+    </form>
+
+    <p class="examples">
+      Or try
+      <button class="chip" type="button" data-user="hikaru">hikaru</button>
+      <button class="chip" type="button" data-user="magnuscarlsen">magnuscarlsen</button>
+      <button class="chip" type="button" data-user="fabianocaruana">fabianocaruana</button>
+    </p>
+  </section>
+
+  <!-- ── Games ───────────────────────────────────────────────── -->
+  <section id="games" class="games" hidden>
+    <div class="who">
+      <h1 class="who__name" id="who-name"></h1>
+      <button id="switch-user" class="linkish" type="button">Not you?</button>
+    </div>
+
+    <a id="last-loss" class="cta" href="#" target="_blank" rel="noopener noreferrer">
+      <span class="cta__label">Analyse my last loss</span>
+      <span class="cta__meta" id="last-loss-meta"></span>
+    </a>
+    <p id="no-loss" class="cta-note" hidden>No losses this month. Enjoy it.</p>
+
+    <div class="controls">
+      <label class="sr-only" for="search">Filter by opponent</label>
+      <input id="search" class="search" type="search" placeholder="Filter by opponent  ( / )" autocomplete="off">
+      <div class="filters" role="group" aria-label="Filter games">
+        <select id="f-result" aria-label="Result">
+          <option value="">Any result</option>
+          <option value="win">Wins</option>
+          <option value="loss">Losses</option>
+          <option value="draw">Draws</option>
+        </select>
+        <select id="f-color" aria-label="Colour">
+          <option value="">Either colour</option>
+          <option value="white">As white</option>
+          <option value="black">As black</option>
+        </select>
+        <select id="f-tc" aria-label="Time control">
+          <option value="">Any speed</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="tally" id="tally" role="status" aria-live="polite"></p>
+
+    <ol class="list" id="list" aria-label="Games, newest first"></ol>
+
+    <div class="more">
+      <button id="load-more" class="ghost" type="button" hidden></button>
+      <p id="list-note" class="note" hidden></p>
+    </div>
+  </section>
+
+  <!-- ── Status (loading / empty / error) ────────────────────── -->
+  <section id="status" class="status" hidden aria-live="polite"></section>
+
+</main>
+
+<div id="nudge" class="nudge" hidden>
+  <p>Found this useful? A star helps other players find it.</p>
+  <a class="nudge__go" href="https://github.com/roeibh/check-please" target="_blank" rel="noopener noreferrer">Star it</a>
+  <button class="nudge__x" id="nudge-x" type="button" aria-label="Dismiss">&times;</button>
+</div>
+
+<footer class="foot">
+  <p class="foot__lichess">
+    Analysis is provided by <a href="https://lichess.org" target="_blank" rel="noopener noreferrer">Lichess</a> — free,
+    open source, and run by a nonprofit. They do the hard part.
+    <a href="https://lichess.org/patron" target="_blank" rel="noopener noreferrer">Donate to Lichess</a>.
+  </p>
+
+  <nav class="foot__links" aria-label="Project links">
+    <a href="https://github.com/roeibh/check-please" target="_blank" rel="noopener noreferrer">
+      Star on GitHub <span class="stars" id="stars" hidden></span>
+    </a>
+    <a href="https://github.com/roeibh/check-please/issues/new" target="_blank" rel="noopener noreferrer">Report a bug</a>
+    <button class="linkish" id="share-x" type="button">Share on X</button>
+    <button class="linkish" id="share-reddit" type="button">Share on Reddit</button>
+    <button class="linkish" id="copy-link" type="button">Copy link</button>
+  </nav>
+
+  <p class="foot__coffee">
+    <a href="https://buymeacoffee.com/roeibh" target="_blank" rel="noopener noreferrer">
+      <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="40" width="145" loading="lazy">
+    </a>
+  </p>
+
+  <p class="foot__legal">
+    Not affiliated with, endorsed by, or connected to Chess.com or Lichess. Both marks belong to their owners.
+    Game data comes from chess.com's public API. Everything runs in your browser — there is no server to store anything on.
+    <a href="https://github.com/roeibh/check-please/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licensed</a>.
+  </p>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
