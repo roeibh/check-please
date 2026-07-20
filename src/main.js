@@ -207,9 +207,16 @@ function render() {
   const list = $('list')
   const slice = games.slice(0, state.shown)
   list.replaceChildren(...slice.map(row))
-  $('tally').textContent = games.length
-    ? `${games.length} game${games.length === 1 ? '' : 's'} · ${w}W ${l}L ${d}D`
-    : 'No games match those filters.'
+  // +w =d -l is how a score is actually written on a crosstable.
+  const tally = $('tally')
+  if (games.length) {
+    tally.textContent = `${games.length} game${games.length === 1 ? '' : 's'} · +${w} =${d} −${l}`
+    tally.setAttribute('aria-label',
+      `${games.length} games: ${w} won, ${d} drawn, ${l} lost`)
+  } else {
+    tally.textContent = 'No games match those filters.'
+    tally.removeAttribute('aria-label')
+  }
 
   const more = $('load-more')
   const hasOlder = state.loaded < state.archives.length
@@ -263,24 +270,36 @@ function renderLastLoss() {
   }
 }
 
+// How a crosstable actually writes a result. The glyph carries the meaning;
+// colour only reinforces it, so nothing depends on hue.
+const SCORE = { win: '1', loss: '0', draw: '½' }
+const OUTCOME_WORD = { win: 'Win', loss: 'Loss', draw: 'Draw' }
+
 function row(game) {
   const { outcome, color, me, them, reason } = playerResult(game, state.user)
   const li = el('li', `row row--${outcome}`)
-  li.append(el('div', 'row__rail'))
+
+  const score = el('div', 'score', SCORE[outcome])
+  score.setAttribute('role', 'img')
+  score.setAttribute('aria-label',
+    `${OUTCOME_WORD[outcome]} by ${reasonText(reason)}, playing ${color}`)
+  li.append(score)
 
   const body = el('div', 'row__body')
   const head = el('div', 'row__head')
-  const wld = el('span', 'wld', outcome[0].toUpperCase())
-  wld.setAttribute('role', 'img')
-  wld.setAttribute('aria-label',
-    `${outcome === 'win' ? 'Win' : outcome === 'loss' ? 'Loss' : 'Draw'} by ${reasonText(reason)}, playing ${color}`)
-  head.append(wld, el('span', 'opp', them.username ?? 'Unknown'))
+  head.append(el('span', 'opp', them.username ?? 'Unknown'))
   if (them.rating) head.append(el('span', 'opp-rating', String(them.rating)))
   body.append(head)
 
   const plies = extractMoves(game.pgn).length
   const meta = el('div', 'row__meta')
-  meta.append(el('span', null, `as ${color}`))
+
+  // Hollow/filled disc for the side played, the way a crosstable marks colour.
+  // The score cell's aria-label already says it in words.
+  const side = el('span', 'side', color === 'white' ? '○' : '●')
+  side.setAttribute('aria-hidden', 'true')
+  side.title = `Played ${color}`
+  meta.append(side)
 
   if (me.rating) {
     const r = el('span', null, String(me.rating))
@@ -476,7 +495,7 @@ $('copy-link').addEventListener('click', async () => {
 function paintStars(n) {
   if (typeof n !== 'number') return
   const s = $('stars')
-  s.textContent = `★ ${n}`
+  s.textContent = n.toLocaleString()
   s.hidden = false
 }
 

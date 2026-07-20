@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Check Please — free chess.com game analysis on Lichess</title>
 <meta name="description" content="Type your chess.com username and open any game in Lichess's free engine analysis. No signup, no paywall, nothing stored on a server.">
-<meta name="theme-color" content="#121A26">
+<meta name="theme-color" content="#1B2231">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="Check Please — free chess.com game analysis">
@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://api.chess.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Fragment+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./src/style.css">
 </head>
 <body>
@@ -36,44 +36,53 @@
 
 <a class="skip" href="#main">Skip to content</a>
 
-<header class="top">
-  <a class="brand" href="./" aria-label="Check Please home">
-    <span class="brand__mark" aria-hidden="true"></span>
-    <span class="brand__text">check please</span>
-  </a>
-  <button id="theme" class="icon-btn" type="button" aria-label="Switch colour theme">
-    <span class="theme-glyph" aria-hidden="true"></span>
-  </button>
+<header>
+  <div class="wrap top">
+    <a class="brand" href="./" aria-label="Check Please home">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__text">Check Please</span>
+    </a>
+    <button id="theme" class="icon-btn" type="button" aria-label="Switch colour theme">
+      <span class="theme-glyph" aria-hidden="true"></span>
+    </button>
+  </div>
 </header>
 
 <main id="main">
 
   <!-- ── Landing ─────────────────────────────────────────────── -->
-  <section id="landing" class="landing">
-    <h1 class="hero">Your chess.com games,<br>analysed free on Lichess.</h1>
-    <p class="sub">Type your username. Open any game in a real engine. No signup, no paywall, nothing stored on a server.</p>
+  <section id="landing" hidden>
+    <div class="field-hero">
+      <div class="wrap">
+        <h1 class="hero">Find out what<em>you missed.</em></h1>
+        <p class="sub">
+          Your chess.com games, opened in Lichess's engine. No signup, no paywall,
+          nothing stored on a server.
+        </p>
 
-    <form id="user-form" class="user-form" novalidate>
-      <label class="sr-only" for="username">chess.com username</label>
-      <div class="field">
-        <input id="username" name="username" type="text" inputmode="text"
-               autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
-               placeholder="chess.com username" enterkeyhint="go" required>
-        <button class="go" type="submit">Show games</button>
+        <form id="user-form" class="user-form" novalidate>
+          <label class="sr-only" for="username">chess.com username</label>
+          <div class="field">
+            <input id="username" name="username" type="text" inputmode="text"
+                   autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
+                   placeholder="chess.com username" enterkeyhint="go" required>
+            <button class="go" type="submit">Show my games</button>
+          </div>
+          <p id="form-error" class="form-error" role="alert" hidden></p>
+        </form>
+
+        <p class="examples">
+          Or look at
+          <button class="chip" type="button" data-user="hikaru">hikaru</button>
+          <button class="chip" type="button" data-user="magnuscarlsen">magnuscarlsen</button>
+          <button class="chip" type="button" data-user="fabianocaruana">fabianocaruana</button>
+        </p>
       </div>
-      <p id="form-error" class="form-error" role="alert" hidden></p>
-    </form>
-
-    <p class="examples">
-      Or try
-      <button class="chip" type="button" data-user="hikaru">hikaru</button>
-      <button class="chip" type="button" data-user="magnuscarlsen">magnuscarlsen</button>
-      <button class="chip" type="button" data-user="fabianocaruana">fabianocaruana</button>
-    </p>
+    </div>
   </section>
 
   <!-- ── Games ───────────────────────────────────────────────── -->
-  <section id="games" class="games" hidden>
+  <section id="games" class="wrap" hidden>
     <div class="who">
       <h1 class="who__name" id="who-name"></h1>
       <button id="switch-user" class="linkish" type="button">Not you?</button>
@@ -83,7 +92,7 @@
       <span class="cta__label">Analyse my last loss</span>
       <span class="cta__meta" id="last-loss-meta"></span>
     </a>
-    <p id="no-loss" class="cta-note" hidden>No losses this month. Enjoy it.</p>
+    <p id="no-loss" class="cta-note" hidden>No losses in this batch. Enjoy it.</p>
 
     <div class="controls">
       <label class="sr-only" for="search">Filter by opponent</label>
@@ -117,42 +126,60 @@
   </section>
 
   <!-- ── Status (loading / empty / error) ────────────────────── -->
-  <section id="status" class="status" hidden aria-live="polite"></section>
+  <section id="status" class="wrap status" hidden aria-live="polite"></section>
 
 </main>
 
 <div id="nudge" class="nudge" hidden>
-  <p>Found this useful? A star helps other players find it.</p>
-  <a class="nudge__go" href="https://github.com/roeibh/check-please" target="_blank" rel="noopener noreferrer">Star it</a>
-  <button class="nudge__x" id="nudge-x" type="button" aria-label="Dismiss">&times;</button>
+  <div class="wrap nudge__in">
+    <p>Found this useful? A star helps other players find it.</p>
+    <a class="btn btn--star" href="https://github.com/roeibh/check-please" target="_blank" rel="noopener noreferrer">Star it</a>
+    <button class="nudge__x" id="nudge-x" type="button" aria-label="Dismiss">&times;</button>
+  </div>
 </div>
 
-<footer class="foot">
+<footer class="wrap foot">
   <p class="foot__lichess">
-    Analysis is provided by <a href="https://lichess.org" target="_blank" rel="noopener noreferrer">Lichess</a> — free,
-    open source, and run by a nonprofit. They do the hard part.
+    The analysis is Lichess's, not ours. They run it free, open source, and ad-free, as a nonprofit.
     <a href="https://lichess.org/patron" target="_blank" rel="noopener noreferrer">Donate to Lichess</a>.
   </p>
 
-  <nav class="foot__links" aria-label="Project links">
-    <a href="https://github.com/roeibh/check-please" target="_blank" rel="noopener noreferrer">
-      Star on GitHub <span class="stars" id="stars" hidden></span>
+  <nav class="btns" aria-label="Project links">
+    <a class="btn btn--star" href="https://github.com/roeibh/check-please" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      Star on GitHub
+      <span class="btn__count" id="stars" hidden></span>
     </a>
-    <a href="https://github.com/roeibh/check-please/issues/new" target="_blank" rel="noopener noreferrer">Report a bug</a>
-    <button class="linkish" id="share-x" type="button">Share on X</button>
-    <button class="linkish" id="share-reddit" type="button">Share on Reddit</button>
-    <button class="linkish" id="copy-link" type="button">Copy link</button>
+
+    <button class="btn" id="share-x" type="button">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.52 6.78 15.48 0h-1.41L8.89 5.89 4.76 0H0l6.25 8.9L0 16h1.41l5.47-6.22L11.24 16H16L9.52 6.78Zm-1.94 2.2-.63-.89L1.92 1.04h2.17l4.07 5.7.63.89 5.29 7.41h-2.17L7.58 8.98Z"/></svg>
+      Share on X
+    </button>
+
+    <button class="btn" id="share-reddit" type="button">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8a1.72 1.72 0 0 0-2.92-1.23 8.44 8.44 0 0 0-4.6-1.47l.78-3.68 2.56.54a1.23 1.23 0 1 0 .13-.6l-2.86-.6a.3.3 0 0 0-.36.23L7.85 5.3a8.44 8.44 0 0 0-4.66 1.47A1.72 1.72 0 1 0 1.3 9.58a3.4 3.4 0 0 0-.04.52c0 2.65 3.09 4.81 6.9 4.81s6.9-2.16 6.9-4.81a3.4 3.4 0 0 0-.04-.52A1.72 1.72 0 0 0 16 8ZM4.4 9.23a1.23 1.23 0 1 1 1.23 1.23A1.23 1.23 0 0 1 4.4 9.23Zm6.86 3.24a4.52 4.52 0 0 1-3.1.96 4.52 4.52 0 0 1-3.1-.96.45.45 0 0 1 .63-.63 3.72 3.72 0 0 0 2.47.7 3.72 3.72 0 0 0 2.47-.7.45.45 0 1 1 .63.63Zm-.89-2.01a1.23 1.23 0 1 1 1.23-1.23 1.23 1.23 0 0 1-1.23 1.23Z"/></svg>
+      Share on Reddit
+    </button>
+
+    <button class="btn" id="copy-link" type="button">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M7.06 10.94a.75.75 0 0 1 0-1.06l2.83-2.83a1.75 1.75 0 1 0-2.48-2.47L5.99 5.99A.75.75 0 0 1 4.93 4.93l1.42-1.41a3.25 3.25 0 1 1 4.6 4.6L8.12 10.94a.75.75 0 0 1-1.06 0Z"/><path d="M8.94 5.06a.75.75 0 0 1 0 1.06L6.11 8.95a1.75 1.75 0 1 0 2.48 2.47l1.42-1.41a.75.75 0 1 1 1.06 1.06l-1.42 1.41a3.25 3.25 0 1 1-4.6-4.6L7.88 5.06a.75.75 0 0 1 1.06 0Z"/></svg>
+      Copy link
+    </button>
+
+    <a class="btn" href="https://github.com/roeibh/check-please/issues/new" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm9 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM7.25 4.5a.75.75 0 0 1 1.5 0v4a.75.75 0 0 1-1.5 0Z"/></svg>
+      Report a bug
+    </a>
+
+    <a class="btn btn--coffee" href="https://buymeacoffee.com/roeibh" target="_blank" rel="noopener noreferrer">
+      <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" height="44" width="159" loading="lazy">
+    </a>
   </nav>
 
-  <p class="foot__coffee">
-    <a href="https://buymeacoffee.com/roeibh" target="_blank" rel="noopener noreferrer">
-      <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="40" width="145" loading="lazy">
-    </a>
-  </p>
-
   <p class="foot__legal">
-    Not affiliated with, endorsed by, or connected to Chess.com or Lichess. Both marks belong to their owners.
-    Game data comes from chess.com's public API. Everything runs in your browser — there is no server to store anything on.
+    Not affiliated with, endorsed by, or connected to Chess.com or Lichess. Both marks belong to
+    their owners. Game data comes from chess.com's public API. Everything runs in your browser;
+    there is no server to store anything on.
     <a href="https://github.com/roeibh/check-please/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licensed</a>.
   </p>
 </footer>

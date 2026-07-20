@@ -4,7 +4,7 @@ Analyse your chess.com games free on Lichess. Type a username, click once, get a
 
 **[roeibh.github.io/check-please](https://roeibh.github.io/check-please/)**
 
-![Check Please](public/og.png)
+![The game list, showing results in crosstable notation with an Analyse button per row](docs/screenshot.png)
 
 You just lost a game, you want to know what went wrong, and chess.com wants money for the answer.
 This takes your username and hands every game straight to Lichess's analysis board — which is free,
@@ -121,6 +121,21 @@ to GitHub Pages. Set Settings → Pages → Source to **GitHub Actions**.
   `QuotaExceededError` (expected for a prolific player, whose single month can exceed the whole
   ~5MB origin quota) still returns games to the caller
 - URL length handling and the `#` encoding above
+
+## Design
+
+`DESIGN.md` holds the system: palette (OKLCH), type, and the rules the UI is held to.
+`PRODUCT.md` holds the voice and the anti-references.
+
+Two decisions worth knowing before editing the UI:
+
+- Results are written in **crosstable notation** (`1`, `0`, `½`), not colour-coded badges. The glyph
+  carries the meaning and colour only reinforces it, so nothing depends on hue.
+- The **evaluation rail** down the page edge fills to the win rate across whatever is currently
+  visible, and re-animates when filters change. It is the one deliberately loud element.
+
+Contrast is measured, not eyeballed. Every foreground/background pair in both themes clears WCAG AA;
+the tightest is 4.85:1.
 
 ## Contributing
 
