@@ -367,18 +367,44 @@ function actions(game) {
   a.target = '_blank'
   a.rel = 'noopener noreferrer'
   a.href = target.kind === 'link' ? target.url : '#'
-  a.setAttribute('aria-label', `Analyse this game on Lichess, opens in a new tab`)
+  a.title = 'Opens the Lichess board at the final position, with an engine. Instant.'
+  a.setAttribute('aria-label', 'Analyse this game on Lichess, opens in a new tab')
   a.addEventListener('click', (e) => {
     if (target.kind === 'import') {
       e.preventDefault()
-      toast('Game is long — importing to Lichess instead.')
+      toast('Game is long, importing to Lichess instead.')
       submitImport(game.pgn)
     }
     nudgeLater()
   })
   wrap.append(a)
+  wrap.append(reviewButton(game))
   wrap.append(menu(game))
   return wrap
+}
+
+/**
+ * The slower, richer path: import to Lichess, where one click gives per-move
+ * blunder labels and an accuracy score, the way chess.com's Game Review does.
+ *
+ * It is not automatic. `analyse=true` does not fire for anonymous imports;
+ * Lichess still renders a "Request a computer analysis" button. Verified
+ * 2026-07-20, and the copy here is careful not to promise otherwise.
+ */
+function reviewButton(game) {
+  const b = el('button', 'review', 'Review')
+  b.type = 'button'
+  b.title =
+    'Imports to Lichess, then one click there gives blunders, mistakes and an accuracy score. ' +
+    'Takes about a minute. Imported games are public on Lichess.'
+  b.setAttribute('aria-label',
+    'Full review of this game on Lichess with blunders and accuracy. Imports the game, which makes it public on Lichess. Opens in a new tab.')
+  b.addEventListener('click', () => {
+    submitImport(game.pgn)
+    toast('Opening Lichess. Click "Request a computer analysis" there.')
+    nudgeLater()
+  })
+  return b
 }
 
 function menu(game) {
@@ -418,11 +444,7 @@ function menu(game) {
     orig.target = '_blank'
     orig.rel = 'noopener noreferrer'
 
-    const imp = el('button', null, 'Import to Lichess with analysis')
-    imp.type = 'button'
-    imp.addEventListener('click', () => { submitImport(game.pgn); close() })
-
-    pop.append(copy, dl, orig, imp)
+    pop.append(copy, dl, orig)
     box.append(pop)
     btn.setAttribute('aria-expanded', 'true')
     setTimeout(() => document.addEventListener('click', onDoc, true))

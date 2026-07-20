@@ -388,6 +388,19 @@ input::placeholder { color: var(--muted); opacity: 1; }
   :root:not([data-theme='light']) .analyse:hover { background: var(--paper); }
 }
 
+/* Secondary to Analyse: same tap target, quieter fill, so the instant path
+   stays the obvious one. */
+.review {
+  min-height: var(--tap); padding: 0 .8rem;
+  background: none; color: var(--fg);
+  border: 1.5px solid var(--line);
+  font: 600 var(--step--1) var(--display);
+  letter-spacing: -.01em; cursor: pointer;
+  transition: border-color .18s var(--out), background .18s var(--out), color .18s var(--out);
+}
+.review:hover { border-color: var(--fg); }
+.row:focus-within .review { border-color: oklch(0.20 0.03 258 / .45); }
+
 .menu { position: relative; }
 .menu__btn {
   min-height: var(--tap); min-width: 32px;

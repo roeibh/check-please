@@ -27,7 +27,9 @@ runs entirely in your browser.
 ## What it does
 
 - **Analyse my last loss.** One click from landing to the engine, at the position where it ended.
-- Every row opens the Lichess analysis board **at the final position**, in a new tab.
+- Every row has two actions. **Analyse** opens the Lichess board at the final position instantly.
+  **Review** imports the game so Lichess can give you per-move blunder labels and an accuracy
+  score, the way chess.com's Game Review does. That one costs about a minute.
 - Your username is remembered, so the next visit goes straight to your games.
 - `?u=username` links are shareable and bookmarkable.
 - Filter by result, colour, speed, and opponent. Instant, no submit button.
@@ -112,7 +114,17 @@ accuracies?: { white, black }        // optional, ~50% of games
 | 11 | **The analysis board can be built from a URL with no import at all**: `https://lichess.org/analysis/pgn/e4_e5_Nf3`. Documented in the API spec but easy to miss. Zero API calls, no rate limit, works as a plain link. This is what the site uses. |
 | 12 | It accepts a **`#<ply>` anchor**, so games open at the final position. `/<id>/black#<ply>` also orients the board. |
 | 13 | **The paste form posts to `/import`, not `/paste`.** `/paste` is the GET page that renders the form. There is no CSRF token, so an anonymous form POST works. |
-| 14 | The form has an **`analyse=true`** field, which requests Lichess's server-side computer analysis at import time. |
+| 14 | The form has an **`analyse=true`** field, but **it does not fire for anonymous imports**. The imported game still renders a "Request a computer analysis" button that has to be clicked. Corrected after testing: an earlier version of this table claimed it was automatic, based on reading the form rather than running it. |
+| 14b | **Move classifications require an import, not the analysis board.** `/analysis/pgn/...` has a live engine but no per-move judgments, because the game is not saved on Lichess so there is nothing to annotate. An imported game, after one click, returns exactly what chess.com's Game Review shows. Measured on a 43-ply game: 50 seconds, anonymous, no login. |
+
+Analysis output from `GET /game/export/{id}?evals=true&accuracy=true` once it completes:
+
+```json
+"players": { "white": { "inaccuracy": 5, "mistake": 1, "blunder": 1,
+                        "acpl": 39, "accuracy": 84 } },
+"analysis": [ { "eval": 148, "best": "c7c6",
+                "judgment": { "name": "Blunder", "comment": "Blunder. c6 was best." } } ]
+```
 | 15 | **`POST /api/import` returns `{id, url}` only if you send `Accept: application/json`.** Without it you get a **303** to `/<id>`, and `Location` is *not* in `access-control-expose-headers`, so JS cannot read it. The game page sends no CORS headers either, so following the redirect from `fetch` also fails. |
 | 16 | Importing the same PGN twice returns the **same game id**. Lichess dedupes, which protects the rate limit. |
 | 17 | **Rate limits**, quoted from the spec: *"200 games per hour for OAuth requests, 100 games per hour for anonymous requests"*, and *"Only make one request at a time... If you receive a 429... waiting one minute before retrying will be sufficient."* |

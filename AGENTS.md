@@ -40,6 +40,8 @@ it and do not assume it.** Several details are counterintuitive:
 | `If-None-Match` | The preflight allows `Origin` only, so a conditional request from JS is **blocked outright**. `curl` gets a 304 because `curl` is not subject to CORS. Do not "fix" caching by adding it. |
 | `POST /api/import` | Returns `{id, url}` **only** with `Accept: application/json`. Otherwise a 303 whose `Location` JS cannot read. |
 | The paste form | Posts to `/import`, not `/paste`. |
+| `analyse=true` | Does **not** fire for anonymous imports. Lichess still shows a "Request a computer analysis" button. This was documented as automatic for a while because the form field was read but never exercised. |
+| Move judgments | Only exist for **imported** games, never for `/analysis/pgn/...`. An unsaved board has nothing to annotate. |
 | `rating` | Is the **post-game** rating. Verified by checking every delta's sign against its own game's result. Diff against the previous game in the same `time_class`. |
 | `accuracies` | Present on roughly half of games. Never make it load-bearing. |
 | `eco` | Is a URL, not a name. |
@@ -93,6 +95,11 @@ and re-measure.
 **`#` is legal in SAN.** `Qxf7#` unencoded truncates the URL at the fragment and silently drops the
 mating move. Lichess returns **200 either way**, so no status code reveals it. Moves are
 `encodeURIComponent`-ed; `test/lichess.test.js` pins it.
+
+**Reading a form field is not testing it.** `analyse=true` was documented here as "requests
+server-side analysis at import time" purely because the field exists in Lichess's paste form.
+Actually posting it anonymously showed the game still waiting behind a manual button. If a claim
+about someone else's API matters to the UI copy, exercise it end to end.
 
 **A cache TTL is not a freshness policy.** The GitHub star count was cached for 24 hours and
 returned early on a hit, so anyone who starred the repo kept seeing the old number for the rest of
