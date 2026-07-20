@@ -2,9 +2,12 @@
 
 ## Aesthetic lane
 
-**The pairing sheet.** Weekend swiss tournaments print pairings on saturated copy paper and tape
-them to the wall; everyone crowds around to find their board. That is the object this site is: a
-sheet you scan fast, standing up, to find one line that matters.
+**A quiet results table you scan standing up.** The reference object is still the pairing sheet
+taped to a tournament wall: you find your line, you leave. But the execution is restrained rather
+than loud, on shadcn/ui's token system, because the visitor is annoyed and wants an answer.
+
+The site's character comes from the boards, the notation-set mono, and the brass accent, not from
+covering things in colour.
 
 Not editorial-typographic. Not terminal-brutalist. Not a dashboard.
 
@@ -27,37 +30,40 @@ Scale is fluid `clamp()`, ratio ≥1.25 between steps. Dark surfaces get +0.06 l
 
 ## Color
 
-**Strategy: Committed.** A saturated field carries the hero. The previous build was Restrained
-(ink plus one accent under 10%), which is the exact anti-reference the brief names.
+**System: shadcn/ui tokens, implemented in plain CSS.** Same naming (`name` / `name-foreground`),
+same OKLCH space, same `--radius: 0.625rem` scale. No React, Tailwind or Radix: that costs roughly
+150 kB against a 10 kB budget, and shadcn's theming layer is CSS variables, so it ports without them.
 
-Reference point: goldenrod copy paper under fluorescent light, with ink stamped on it.
+**Strategy: restrained.** Tinted neutrals carry the surface; a muted brass accent stays under ~10%
+of it, on the primary button, focus rings, and the rail.
 
-All values are OKLCH. No pure black or white anywhere; every neutral is tinted toward the flag hue.
+An earlier build was Committed, with a saturated goldenrod `oklch(0.79 0.155 71)` as a full-bleed
+hero field. It was painful to look at. The lesson is that the strategy was wrong before the hue was:
+a large area of high-chroma colour is uncomfortable whatever the hue.
 
 | Token | Light | Role |
 |---|---|---|
-| `--flag` | `oklch(0.79 0.155 71)` | Goldenrod. Carries the hero as a full field, not a button accent. |
-| `--ink` | `oklch(0.20 0.03 258)` | Blue-tinted near-black. Type on flag, surface in dark mode. |
-| `--paper` | `oklch(0.96 0.012 88)` | Warm bone, tinted toward flag. Never `#fff`. |
-| `--win` | `oklch(0.60 0.115 162)` | Crosstable `1`. |
-| `--loss` | `oklch(0.57 0.165 20)` | Crosstable `0`. |
-| `--draw` | `oklch(0.63 0.025 258)` | Crosstable `½`. |
+| `--background` / `--foreground` | `oklch(0.988 0.003 80)` / `oklch(0.185 0.013 265)` | Page surface and text |
+| `--card` | `oklch(1 0.001 80)` | Rows, buttons, popovers |
+| `--muted` / `--muted-foreground` | `oklch(0.966 0.004 80)` / `oklch(0.505 0.014 265)` | Hover, secondary text |
+| `--primary` | `oklch(0.548 0.104 68)` | Brass. The accent, and the only saturated colour |
+| `--border` / `--input` / `--ring` | `oklch(0.915 …)` / `oklch(0.905 …)` / `oklch(0.62 0.098 72)` | Edges and focus |
+| `--win` / `--loss` / `--draw` | `oklch(0.505 0.105 162)` / `oklch(0.505 0.16 24)` / `oklch(0.50 0.022 265)` | Result labels |
 
-Art direction differs by section, which the brand register permits: the landing hero is a drenched
-flag field; the results view is quiet paper or ink so the data reads.
+Dark mode has its own values for all of these, including a separate board-square pair so the board
+does not glare against a dark surface. Neutrals are tinted (never pure black or white).
+
+`--primary` sat at `oklch(0.585 …)` until it was measured at 4.22:1 against its foreground, under AA.
+
 
 ## Mark
 
-A **knight silhouette**, amber on ink, used for the favicon, the app icons, the header, and the OG
-image. Drawn from the Cburnett knight outline as a solid shape with the eye knocked out; the
-internal line work in the original goes muddy below about 24px.
+A **knight from the `spatial` set** (Maurizio Monge, MIT), in brass on ink, used for the favicon,
+app icons, header and OG image. The set is gradient-shaded and looks best large, which suits a logo.
 
 The brief warns against Staunton silhouettes as the obvious reach, and that holds for decoration.
-A favicon is the exception: it has 16 pixels to say "chess" and no room for cleverness. Everywhere
-the site has room to be less obvious, it is: real positions rather than piece clip art.
+A favicon is the exception: it has 16 pixels to say "chess" and no room for cleverness.
 
-The header previously used an abstract bar echoing the eval rail, which read as a UI element rather
-than an identity.
 
 ## Rating change
 
@@ -76,8 +82,11 @@ falsy. A real zero and an unknown are different facts and must look different.
 ## Signature element
 
 **The evaluation rail**, page-edge, full height, filled to the win rate across currently visible
-games. It animates when filters change. Mobile 7px, desktop 16px. This is the one place boldness is
-spent besides the hero.
+games. It animates when filters change.
+
+**3px, not 16px.** A full-height 16px bar of accent was a large share of the accent budget on its
+own, and most of what made the old palette shout. At 3px it still reads as a persistent indicator
+without competing with the content.
 
 ## Result encoding
 
@@ -113,20 +122,29 @@ Forty boards on screen is roughly 580 `<use>` nodes and pushes a full re-render 
 the 16.7ms frame budget. The select filters re-render immediately because they fire once; the
 search box is debounced 120ms so typing does not stutter under the cursor.
 
-Squares are kept in the brand's warm range, and the dark square is deliberately light enough that
-black pieces still read on it. Pieces are Cburnett (CC BY-SA 3.0), inlined once as an SVG sprite and
-referenced with `<use>`, which keeps twelve pieces to roughly 3 kB gzipped.
+Squares are warm, with a separate darker pair in dark mode so the board does not glare against a
+dark surface. They stay far enough apart in lightness that white and black pieces both read.
 
-Rows stay text. A board small enough to fit a list row is unreadable, and it would slow the scan
-the list exists for.
+Board pieces are **cburnett** (CC BY-SA 3.0), inlined once as an SVG sprite and referenced with
+`<use>`: twelve pieces for about 2.3 kB gzipped. The logo uses **spatial** (MIT) instead. See
+`AGENTS.md` for why the boards are not on the prettier set: it is a legibility result measured at
+68px, not a taste call.
+
+Boards are drawn lazily by an `IntersectionObserver` as rows approach the viewport. Drawing forty
+up front cost about 2 seconds of render delay on a throttled phone. The cell reserves its square
+with `aspect-ratio`, so a board arriving later shifts nothing.
 
 ## Layout
 
-- No cards. Rows are flat banded blocks, the way a printed pairing sheet bands its lines.
-- **No side-stripe borders.** The first build used a coloured left edge on each row; that is an
-  absolute ban and it was rebuilt as a crosstable result cell.
-- Left-aligned, single column, max 660px. Phone layout designed first.
-- Tap targets 44px minimum.
+- The list is **one bordered surface with dividers**, shadcn's table shape, not a stack of floating
+  cards. The only true card on the page is the "Analyse my last loss" block, because it is the one
+  headline action.
+- **No side-stripe borders.** An early build used a coloured left edge on each row; that is an
+  absolute ban and it was rebuilt as the board-plus-label result cell.
+- Left-aligned, single column, max 760px, one measure for every container. A second width made the
+  header and footer stop sharing a left edge with the hero, which read as broken.
+- Tap targets 44px minimum. Phone layout designed first.
+- `padding-block`, never the `padding` shorthand, on anything that is also a `.wrap`.
 
 ## Motion
 

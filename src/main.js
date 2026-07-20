@@ -49,7 +49,7 @@ function status(title, body, actions = [], piece = 'bk') {
   box.replaceChildren(art, el('h2', null, title), el('p', null, body))
   const row = el('div', 'status__actions')
   for (const a of actions) {
-    const b = el('button', 'ghost', a.label)
+    const b = el('button', 'btn-outline', a.label)
     b.type = 'button'
     b.addEventListener('click', a.run)
     row.append(b)

@@ -224,8 +224,13 @@ by a nonprofit, which is an unusually good thing on the modern internet.
 Not affiliated with, endorsed by, or connected to Chess.com or Lichess. Both marks belong to their
 owners. Game data comes from chess.com's public API.
 
-Code is [MIT](LICENSE). **The chess piece artwork is not.** The pieces in `src/pieces.js` are by
-[Cburnett](https://commons.wikimedia.org/wiki/User:Cburnett) via Wikimedia Commons, licensed
-[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), the same set Lichess and Wikipedia
-use. That is a share-alike licence: modify the artwork and you must release it under CC BY-SA 3.0
-too. Attribution is in the page footer and must stay there.
+Code is [MIT](LICENSE). **The chess artwork is separately licensed.** Two sets are used, each where
+it performs best:
+
+| Where | Set | Licence |
+|---|---|---|
+| Board pieces (`src/pieces.js`) | [Cburnett](https://commons.wikimedia.org/wiki/User:Cburnett), via Wikimedia | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
+| Logo, favicon, app icons | `spatial` by [Maurizio Monge](https://github.com/maurimo/chess-art), shipped by Lichess | [MIT](https://github.com/maurimo/chess-art/blob/main/LICENSE) |
+
+CC BY-SA is share-alike: modify that artwork and you must release it under CC BY-SA 3.0 too.
+Attribution is in the page footer and must stay there.

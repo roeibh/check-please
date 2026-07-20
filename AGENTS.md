@@ -128,10 +128,16 @@ still get its games when caching fails.
 **Contrast is measured.** Every foreground/background pair in both themes must clear WCAG AA
 (4.5:1, or 3:1 for large text). The tightest pair currently is 4.85:1.
 
-There is a trap inside the trap: the obvious way to read a colour in JS, assigning it to a canvas
-`fillStyle` and reading the string back, **silently fails on `oklch()`** and returns confident wrong
-numbers. The tell was identical ratios for pairs that differ. Paint the colour and read the pixel
-with `getImageData` instead.
+There are two traps inside that trap, and both have produced confidently wrong numbers here:
+
+1. Assigning a colour to a canvas `fillStyle` and reading the string back **silently fails on
+   `oklch()`**. The tell was identical ratios for pairs that differ. Paint the colour and read the
+   pixel with `getImageData` instead.
+2. **Kill transitions before measuring.** Elements with a `background-color` or `color` transition
+   return an *interpolated* value if read just after a theme flip, so the audit reports a blend that
+   never exists at rest. The tell is a computed colour coming back as `oklab(...)`. This produced a
+   phantom 1.05:1 failure while hiding a real 4.22:1 one. Inject
+   `*{transition:none!important;animation:none!important}`, wait two frames, then measure.
 
 **Performance is measured.** Forty boards is about 580 `<use>` nodes and pushes a full re-render
 past the 16.7ms frame budget, which is why the search box is debounced and the selects are not.
@@ -146,6 +152,16 @@ If you add per-row content, re-measure.
 
 Full system in `DESIGN.md`. The ones most often got wrong:
 
+- **The design system is shadcn/ui's, implemented in plain CSS.** Tokens follow their naming
+  (`--background`/`--foreground`, `--card`, `--muted`, `--primary`, `--border`, `--input`, `--ring`,
+  `--radius`) and their radius scale. **Do not install React, Tailwind or Radix to "properly" adopt
+  shadcn.** That was considered and rejected: it costs roughly 150 kB against a 10 kB budget and
+  reverses the LCP work. shadcn is copy-in by design and its theming layer is CSS variables, so the
+  system ports without the framework. Add new components by matching the existing token usage.
+- **The accent has a budget: under about 10% of the surface.** No full-bleed colour fields. An
+  earlier build used saturated goldenrod as a drenched hero and it was genuinely painful to look at.
+  If a colour needs to cover a large area, it is the wrong colour or the wrong idea.
+
 - **Plain words over jargon.** Results read `Won` / `Lost` / `Drew`. An earlier build used
   crosstable notation (`1` / `0` / `½`); it reads instantly to tournament players and means nothing
   to everyone else. Chess literacy is not the price of entry.
@@ -156,6 +172,30 @@ Full system in `DESIGN.md`. The ones most often got wrong:
   Space Grotesk; those are training-data defaults and two of them already shipped here once.
 - **All colour in OKLCH.** No pure black or white; tint neutrals toward the brand hue.
 - Mobile first. Tap targets 44px. Respect `prefers-reduced-motion`. Visible focus rings.
+
+### Chess assets
+
+Two sets, each chosen for where it is used, both credited in the footer:
+
+| Where | Set | Licence | Why |
+|---|---|---|---|
+| Board squares | **cburnett** | CC BY-SA 3.0 | Legible at 68px |
+| Logo, favicon, app icons | **spatial** (Maurizio Monge) | MIT | Looks best large |
+
+**Judge a piece set at the size it will actually render, not at full size.** Swapping the boards to
+Lichess's MIT `spatial` set was tried and reverted: it is beautiful at 240px and turns into
+identical grey blobs at the 68px the rows use, because it is gradient-shaded. cburnett's flat fill
+against a heavy stroke survives the downscale, which is why Lichess ships it as their default.
+Render a real position at the real pixel size before switching.
+
+Lichess ships 40+ sets in `lila/public/piece`, but **most are CC BY-NC-SA (non-commercial)**. Check
+`lila/COPYING.md` before taking any of them. Only `fantasy`, `celtic`, `spatial` (MIT), `rhosgfx`
+(CC0) and `chessnut` (Apache 2.0) are comfortably permissive.
+
+**Namespace every id when combining SVGs into a sprite.** Piece sets reuse internal ids across
+files (`fillGradient`, `main-gradient`, and 30 others in `spatial`). In one sprite document those
+collide silently and every piece renders with whichever gradient parsed first, so white and black
+stop being distinguishable. `src/pieces.js` prefixes each symbol's ids with its piece code.
 
 ## Copy rules
 

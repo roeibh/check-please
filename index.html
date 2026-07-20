@@ -52,7 +52,7 @@
 
   <!-- ── Landing ─────────────────────────────────────────────── -->
   <section id="landing" hidden>
-    <div class="field-hero">
+    <div class="hero-wrap">
       <div class="wrap hero-grid">
         <div class="hero-copy">
           <h1 class="hero">Find out what<em>you missed.</em></h1>
@@ -67,7 +67,7 @@
               <input id="username" name="username" type="text" inputmode="text"
                      autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
                      placeholder="chess.com username" enterkeyhint="go" required>
-              <button class="go" type="submit">Show my games</button>
+              <button class="btn-primary" type="submit">Show my games</button>
             </div>
             <p id="form-error" class="form-error" role="alert" hidden></p>
           </form>
@@ -104,6 +104,7 @@
         <span class="cta__label">Analyse my last loss</span>
         <span class="cta__meta" id="last-loss-meta"></span>
       </span>
+      <span class="cta__go" aria-hidden="true">&rarr;</span>
     </a>
     <p id="no-loss" class="cta-note" hidden>No losses in this batch. Enjoy it.</p>
 
@@ -194,9 +195,11 @@
     their owners. Game data comes from chess.com's public API. Everything runs in your browser;
     there is no server to store anything on.
     <a href="https://github.com/roeibh/check-please/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licensed</a>.
-    Chess piece artwork by
-    <a href="https://commons.wikimedia.org/wiki/User:Cburnett" target="_blank" rel="noopener noreferrer">Cburnett</a>,
-    <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>.
+    Board pieces by
+    <a href="https://commons.wikimedia.org/wiki/User:Cburnett" target="_blank" rel="noopener noreferrer">Cburnett</a>
+    (<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>);
+    the knight mark is from the <em>spatial</em> set by
+    <a href="https://github.com/maurimo/chess-art" target="_blank" rel="noopener noreferrer">Maurizio Monge</a> (MIT).
   </p>
 </footer>
 
