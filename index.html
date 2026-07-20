@@ -53,30 +53,40 @@
   <!-- ── Landing ─────────────────────────────────────────────── -->
   <section id="landing" hidden>
     <div class="field-hero">
-      <div class="wrap">
-        <h1 class="hero">Find out what<em>you missed.</em></h1>
-        <p class="sub">
-          Your chess.com games, opened in Lichess's engine. No signup, no paywall,
-          nothing stored on a server.
-        </p>
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <h1 class="hero">Find out what<em>you missed.</em></h1>
+          <p class="sub">
+            Your chess.com games, opened in Lichess's engine. No signup, no paywall,
+            nothing stored on a server.
+          </p>
 
-        <form id="user-form" class="user-form" novalidate>
-          <label class="sr-only" for="username">chess.com username</label>
-          <div class="field">
-            <input id="username" name="username" type="text" inputmode="text"
-                   autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
-                   placeholder="chess.com username" enterkeyhint="go" required>
-            <button class="go" type="submit">Show my games</button>
-          </div>
-          <p id="form-error" class="form-error" role="alert" hidden></p>
-        </form>
+          <form id="user-form" class="user-form" novalidate>
+            <label class="sr-only" for="username">chess.com username</label>
+            <div class="field">
+              <input id="username" name="username" type="text" inputmode="text"
+                     autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
+                     placeholder="chess.com username" enterkeyhint="go" required>
+              <button class="go" type="submit">Show my games</button>
+            </div>
+            <p id="form-error" class="form-error" role="alert" hidden></p>
+          </form>
 
-        <p class="examples">
-          Or look at
-          <button class="chip" type="button" data-user="hikaru">hikaru</button>
-          <button class="chip" type="button" data-user="magnuscarlsen">magnuscarlsen</button>
-          <button class="chip" type="button" data-user="fabianocaruana">fabianocaruana</button>
-        </p>
+          <p class="examples">
+            Or look at
+            <button class="chip" type="button" data-user="hikaru">hikaru</button>
+            <button class="chip" type="button" data-user="magnuscarlsen">magnuscarlsen</button>
+            <button class="chip" type="button" data-user="fabianocaruana">fabianocaruana</button>
+          </p>
+        </div>
+
+        <figure class="hero-board">
+          <div id="hero-board"></div>
+          <figcaption>
+            Morphy&ndash;Duke of Brunswick, Paris 1858.
+            Black resigned after <span class="mv">17.Rd8#</span>
+          </figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -89,8 +99,11 @@
     </div>
 
     <a id="last-loss" class="cta" href="#" target="_blank" rel="noopener noreferrer">
-      <span class="cta__label">Analyse my last loss</span>
-      <span class="cta__meta" id="last-loss-meta"></span>
+      <span class="cta__board" id="last-loss-board" aria-hidden="true"></span>
+      <span class="cta__text">
+        <span class="cta__label">Analyse my last loss</span>
+        <span class="cta__meta" id="last-loss-meta"></span>
+      </span>
     </a>
     <p id="no-loss" class="cta-note" hidden>No losses in this batch. Enjoy it.</p>
 
@@ -181,6 +194,9 @@
     their owners. Game data comes from chess.com's public API. Everything runs in your browser;
     there is no server to store anything on.
     <a href="https://github.com/roeibh/check-please/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licensed</a>.
+    Chess piece artwork by
+    <a href="https://commons.wikimedia.org/wiki/User:Cburnett" target="_blank" rel="noopener noreferrer">Cburnett</a>,
+    <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>.
   </p>
 </footer>
 

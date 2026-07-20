@@ -1,6 +1,7 @@
 import { archives, monthGames, normalize, NotFound, Unreachable } from './chesscom.js'
 import { playerResult, openingName, timeControl, withRatingDeltas, relativeTime, extractMoves, reasonText } from './pgn.js'
 import { analysisUrl, bestAnalysisTarget, submitImport } from './lichess.js'
+import { boardSvg, pieceSvg, ensureSprite } from './board.js'
 
 const $ = (id) => document.getElementById(id)
 const el = (tag, cls, text) => {
@@ -40,15 +41,19 @@ function show(view) {
   for (const id of ['landing', 'games', 'status']) $(id).hidden = id !== view
 }
 
-function status(title, body, actions = []) {
+function status(title, body, actions = [], piece = 'bk') {
   const box = $('status')
-  box.replaceChildren(el('h2', null, title), el('p', null, body))
+  const art = el('div', 'status__art')
+  art.innerHTML = pieceSvg(piece)
+  box.replaceChildren(art, el('h2', null, title), el('p', null, body))
+  const row = el('div', 'status__actions')
   for (const a of actions) {
     const b = el('button', 'ghost', a.label)
     b.type = 'button'
     b.addEventListener('click', a.run)
-    box.append(b)
+    row.append(b)
   }
+  box.append(row)
   show('status')
 }
 
@@ -79,7 +84,6 @@ async function load(username) {
   state.games = []
   state.loaded = 0
   state.shown = PAGE
-  localStorage.setItem(USER_KEY, user)
 
   const url = new URL(location.href)
   url.searchParams.set('u', user)
@@ -95,11 +99,16 @@ async function load(username) {
     return failed(err, user)
   }
 
+  // Only remember a username that actually resolved. Storing it earlier meant
+  // one typo sent every future visit straight to the error page.
+  localStorage.setItem(USER_KEY, user)
+
   if (!state.archives.length) {
     return status(
       'No games yet',
       `“${user}” is a real chess.com account but has never finished a game there. Once they play one, it shows up here.`,
       [{ label: 'Try another username', run: reset }],
+      'wp',
     )
   }
 
@@ -125,20 +134,22 @@ function failed(err, user) {
   if (err instanceof NotFound) {
     return status(
       'No games found for that username',
-      `Nothing on chess.com under “${user}”. Check the spelling — or it might be a Lichess account, which already has analysis built in.`,
+      `Nothing on chess.com under “${user}”. Check the spelling, or it might be a Lichess account, which already has analysis built in.`,
       [{ label: 'Try another username', run: reset }],
+      'bn',
     )
   }
   if (err instanceof Unreachable) {
     return status(
       "Can't reach chess.com",
-      'Their API is not responding. This is usually brief — nothing is wrong on your end.',
+      'Their API is not responding. This is usually brief, and nothing is wrong on your end.',
       [{ label: 'Try again', run: () => load(user) }, { label: 'Use a different username', run: reset }],
+      'br',
     )
   }
   console.error(err)
   return status('Something broke', 'That is our fault, not yours. Reloading usually clears it.',
-    [{ label: 'Reload', run: () => location.reload() }])
+    [{ label: 'Reload', run: () => location.reload() }], 'bk')
 }
 
 function reset() {
@@ -257,9 +268,15 @@ function renderLastLoss() {
   none.hidden = true
   cta.hidden = false
 
-  const { them } = playerResult(loss, state.user)
+  const { them, color } = playerResult(loss, state.user)
   const url = analysisUrl(loss)
   $('last-loss-meta').textContent = `vs ${them.username} · ${relativeTime(loss.end_time)}`
+
+  // chess.com's `fen` is the final position, so this is where the game actually ended.
+  $('last-loss-board').innerHTML = boardSvg(loss.fen, {
+    flip: color === 'black',
+    label: `Final position of the loss to ${them.username}`,
+  })
 
   if (url) {
     cta.href = url
@@ -500,6 +517,15 @@ function paintStars(n) {
 }
 
 /* ── Boot ──────────────────────────────────────────────────── */
+ensureSprite()
+
+// Morphy's mate in the Opera Game, 1858. The most famous loss in chess, which
+// is the point: everyone misses something.
+$('hero-board').innerHTML = boardSvg(
+  '1n1Rkb1r/p4ppp/4q3/4p1B1/4P3/8/PPP2PPP/2K5 b k - 1 17',
+  { label: 'Final position of the Opera Game, after 17.Rd8 checkmate' },
+)
+
 const fromUrl = new URLSearchParams(location.search).get('u')
 const remembered = localStorage.getItem(USER_KEY)
 const initial = fromUrl || remembered

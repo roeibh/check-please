@@ -31,14 +31,14 @@
 
   --rail-w: 7px;
   --tap: 44px;
-  --measure: 660px;
+  --measure: 740px;
   --out: ease-out;
 
   --step--1: clamp(0.78rem, 0.76rem + 0.1vw, 0.84rem);
   --step-0:  clamp(0.98rem, 0.95rem + 0.15vw, 1.06rem);
   --step-1:  clamp(1.26rem, 1.15rem + 0.5vw, 1.5rem);
   --step-2:  clamp(1.7rem, 1.45rem + 1.2vw, 2.3rem);
-  --step-3:  clamp(2.5rem, 1.9rem + 3vw, 4.4rem);
+  --step-3:  clamp(2.4rem, 1.8rem + 2.6vw, 3.5rem);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -167,6 +167,32 @@ main { display: block; }
   padding-block: clamp(2.4rem, 9vw, 5rem) clamp(2.2rem, 8vw, 4rem);
 }
 
+/* ── Boards ───────────────────────────────────────────────────
+   Squares stay in the brand's warm range, and the dark square is kept light
+   enough that black pieces still read on it. */
+.board { display: block; width: 100%; height: auto; }
+.board .sq-l { fill: oklch(0.90 0.045 88); }
+.board .sq-d { fill: oklch(0.66 0.095 70); }
+
+.hero-grid {
+  display: grid; gap: clamp(1.6rem, 5vw, 3rem);
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+/* One measure for every container, so the hero, header and footer share a
+   left edge. A second width here read as a broken layout. */
+@media (min-width: 780px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr) 250px; align-items: start; }
+}
+
+.hero-board { margin: 0; max-width: 300px; }
+.hero-board > div { border: 2px solid var(--ink); line-height: 0; }
+.hero-board figcaption {
+  font: 400 var(--step--1) var(--mono);
+  margin-top: .55rem; opacity: .72; letter-spacing: -.02em;
+}
+.hero-board .mv { font-weight: 400; border-bottom: 1.5px solid currentColor; }
+
 .hero {
   font: 700 var(--step-3)/0.98 var(--display);
   letter-spacing: -.035em;
@@ -245,15 +271,21 @@ input::placeholder { color: var(--muted); opacity: 1; }
 }
 .linkish:hover { color: var(--fg); }
 
+/* The board here is the real final position of that loss, not decoration. */
 .cta {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: .3rem 1rem; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 1rem;
   background: var(--flag); color: var(--ink);
-  text-decoration: none; padding: 1.05rem 1.2rem;
+  text-decoration: none; padding: .9rem 1.1rem;
   min-height: 66px; margin-bottom: 1.8rem;
   transition: transform .2s var(--out);
 }
 .cta:hover { transform: translateY(-2px); }
+.cta__board {
+  flex: none; width: 92px; line-height: 0;
+  border: 2px solid var(--ink);
+}
+.cta__board:empty { display: none; }
+.cta__text { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
 .cta__label { font: 700 var(--step-1) var(--display); letter-spacing: -.025em; }
 .cta__meta {
   font: 400 var(--step--1) var(--mono); opacity: .75;
@@ -390,13 +422,17 @@ input::placeholder { color: var(--muted); opacity: 1; }
 }
 @keyframes sweep { to { background-position: -220% 0; } }
 
-.status { padding: 2.6rem 0 3rem; }
+/* padding-block, not the shorthand: `padding` would zero out .wrap's inline
+   padding and knock this section out of alignment with the rest of the page. */
+.status { padding-block: 2.6rem 3rem; }
+.status__art { width: 64px; margin-bottom: 1rem; opacity: .85; }
+.status__art .piece { display: block; width: 100%; height: auto; }
 .status h2 {
   font: 700 var(--step-2)/1.1 var(--display); letter-spacing: -.03em;
   margin: 0 0 .6rem; max-width: 18ch;
 }
 .status p { color: var(--muted); margin: 0 0 1.3rem; max-width: 46ch; }
-.status .ghost + .ghost { margin-left: .5rem; }
+.status__actions { display: flex; gap: .6rem; flex-wrap: wrap; }
 
 .more { margin-block: 1.2rem 2.4rem; display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; }
 .ghost {

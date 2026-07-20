@@ -157,4 +157,11 @@ Not affiliated with, endorsed by, or connected to Chess.com or Lichess. Both mar
 owners. Game data comes from chess.com's public API. Nothing is stored on a server, because there
 is no server.
 
-[MIT](LICENSE)
+Code is [MIT](LICENSE).
+
+**Chess piece artwork is not.** The pieces in `src/pieces.js` are by
+[Cburnett](https://commons.wikimedia.org/wiki/User:Cburnett) via Wikimedia Commons, licensed
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) — the same set Lichess and Wikipedia
+use. That is a share-alike licence, so if you modify the piece artwork itself you must release the
+modified artwork under CC BY-SA 3.0 too. The MIT licence covers the code around it. Attribution is
+in the page footer and must stay there.

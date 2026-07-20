@@ -58,6 +58,24 @@ Results use **crosstable notation**: `1`, `0`, `½`. This is how results are act
 tournament crosstable, and it satisfies the accessibility requirement structurally: the glyph
 carries the meaning, colour only reinforces it. Never hue alone.
 
+## Imagery
+
+Boards are **data, not decoration**. The brief warned that checkerboards and Staunton silhouettes
+are the first thing anyone reaches for, so every board on the site shows a real position:
+
+- The hero shows the final position of the Opera Game, Morphy to Duke of Brunswick, Paris 1858,
+  after 17.Rd8#. The most famous loss in chess, which is the point.
+- The "Analyse my last loss" button shows the **actual final position of that loss**, rendered from
+  the `fen` field chess.com returns. Board orientation flips when the player had black.
+- Empty and error states carry a single piece rather than sitting as bare text.
+
+Squares are kept in the brand's warm range, and the dark square is deliberately light enough that
+black pieces still read on it. Pieces are Cburnett (CC BY-SA 3.0), inlined once as an SVG sprite and
+referenced with `<use>`, which keeps twelve pieces to roughly 3 kB gzipped.
+
+Rows stay text. A board small enough to fit a list row is unreadable, and it would slow the scan
+the list exists for.
+
 ## Layout
 
 - No cards. Rows are flat banded blocks, the way a printed pairing sheet bands its lines.
