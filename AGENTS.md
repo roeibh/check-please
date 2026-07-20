@@ -190,6 +190,11 @@ and must stay there. Modifying the artwork obliges you to release it share-alike
 
 - **Verify before claiming.** Run the command, read the output, then say it works. "Should work" is
   not a result.
+- **Curl every link you write.** `https://www.chess.com/member` shipped in an issue template and was
+  a 404; it looked plausible, which is exactly the problem. Follow redirects and check where they
+  land, since a 200 that ends on a login wall or a generic help chooser is still the wrong link.
+  Note that GitHub returns 404 for `/stargazers` to anonymous requests it is rate-limiting, so
+  confirm GitHub URLs with `gh api` before believing they are broken.
 - **Report failures plainly.** If tests fail, say so and show the output.
 - **Prefer deleting.** The shortest change that works is the right one.
 - **Say when the ask is wrong.** If a request would lengthen the ten-second path, break the static
