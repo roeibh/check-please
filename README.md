@@ -6,7 +6,6 @@
   <a href="https://github.com/roeibh/check-please/stargazers"><img src="https://img.shields.io/github/stars/roeibh/check-please?style=flat&amp;color=EFA43C" alt="Stars"></a>
   <img src="https://img.shields.io/badge/backend-none-1B2231" alt="No backend">
   <img src="https://img.shields.io/badge/first%20load-17%20kB-1B2231" alt="17 kB first load">
-  <img src="https://img.shields.io/badge/tests-59%20passing-3B8E6E" alt="59 tests passing">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-1B2231" alt="MIT License"></a>
 </p>
 
@@ -158,7 +157,8 @@ in the build.
 
 ## Tests
 
-`npm test` covers the things that break quietly rather than loudly.
+`npm test` covers the things that break quietly rather than loudly. The deploy workflow runs it
+before every build, so the badge above going green means the suite passed.
 
 | Area | What is pinned |
 |---|---|
