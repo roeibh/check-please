@@ -129,8 +129,10 @@ to GitHub Pages. Set Settings → Pages → Source to **GitHub Actions**.
 
 Two decisions worth knowing before editing the UI:
 
-- Results are written in **crosstable notation** (`1`, `0`, `½`), not colour-coded badges. The glyph
-  carries the meaning and colour only reinforces it, so nothing depends on hue.
+- Every game row shows **its own final position**, and that board is the result cell, with a plain
+  `Won` / `Lost` / `Drew` label beneath it. The word carries the result, so nothing depends on hue.
+  (An earlier build used crosstable notation, `1` / `0` / `½`. It reads instantly to tournament
+  players and means nothing to everyone else, which is the wrong trade for this audience.)
 - The **evaluation rail** down the page edge fills to the win rate across whatever is currently
   visible, and re-animates when filters change. It is the one deliberately loud element.
 

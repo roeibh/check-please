@@ -92,7 +92,8 @@ describe('playerResult', () => {
 describe('timeControl', () => {
   it('formats the three shapes chess.com actually sends', () => {
     // "/move" keeps a daily control from reading like the "3 days ago" beside it
-    expect(timeControl('1/259200')).toBe('3 days/move')
+    expect(timeControl('1/259200')).toBe('3d/move')
+    expect(timeControl('1/86400')).toBe('1d/move')
     expect(timeControl('600')).toBe('10 min')
     expect(timeControl('300+5')).toBe('5|5')
     expect(timeControl('30')).toBe('30 sec')

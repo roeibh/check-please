@@ -218,15 +218,13 @@ function render() {
   const list = $('list')
   const slice = games.slice(0, state.shown)
   list.replaceChildren(...slice.map(row))
-  // +w =d -l is how a score is actually written on a crosstable.
   const tally = $('tally')
   if (games.length) {
-    tally.textContent = `${games.length} game${games.length === 1 ? '' : 's'} · +${w} =${d} −${l}`
-    tally.setAttribute('aria-label',
-      `${games.length} games: ${w} won, ${d} drawn, ${l} lost`)
+    // Words, not "+4 =0 -5". Same reason the result cell says "Won".
+    const bits = [`${w} won`, `${l} lost`, d ? `${d} drawn` : null].filter(Boolean)
+    tally.textContent = `${games.length} game${games.length === 1 ? '' : 's'} · ${bits.join(', ')}`
   } else {
     tally.textContent = 'No games match those filters.'
-    tally.removeAttribute('aria-label')
   }
 
   const more = $('load-more')
@@ -287,20 +285,25 @@ function renderLastLoss() {
   }
 }
 
-// How a crosstable actually writes a result. The glyph carries the meaning;
-// colour only reinforces it, so nothing depends on hue.
-const SCORE = { win: '1', loss: '0', draw: '½' }
-const OUTCOME_WORD = { win: 'Win', loss: 'Loss', draw: 'Draw' }
+// Plain words, not crosstable notation. "1" and "0" are obvious if you play
+// tournaments and meaningless if you don't, and the visitor here is someone
+// annoyed who wants an answer, not a scoresheet.
+const OUTCOME_WORD = { win: 'Won', loss: 'Lost', draw: 'Drew' }
 
 function row(game) {
   const { outcome, color, me, them, reason } = playerResult(game, state.user)
   const li = el('li', `row row--${outcome}`)
 
-  const score = el('div', 'score', SCORE[outcome])
-  score.setAttribute('role', 'img')
-  score.setAttribute('aria-label',
-    `${OUTCOME_WORD[outcome]} by ${reasonText(reason)}, playing ${color}`)
-  li.append(score)
+  // The board is the result cell: the final position of that game, labelled.
+  const cell = el('div', 'row__game')
+  const board = el('div', 'row__board')
+  board.innerHTML = boardSvg(game.fen, { flip: color === 'black' })
+  const label = el('div', 'row__label', OUTCOME_WORD[outcome])
+  cell.append(board, label)
+  cell.setAttribute('role', 'img')
+  cell.setAttribute('aria-label',
+    `${OUTCOME_WORD[outcome]} by ${reasonText(reason)}, playing ${color}. Final position shown.`)
+  li.append(cell)
 
   const body = el('div', 'row__body')
   const head = el('div', 'row__head')
@@ -321,8 +324,10 @@ function row(game) {
   if (me.rating) {
     const r = el('span', null, String(me.rating))
     if (game.ratingDelta) {
-      r.append(el('span', game.ratingDelta > 0 ? 'delta-up' : 'delta-down',
-        ` ${game.ratingDelta > 0 ? '+' : ''}${game.ratingDelta}`))
+      const d = el('span', `delta ${game.ratingDelta > 0 ? 'delta-up' : 'delta-down'}`,
+        ` ${game.ratingDelta > 0 ? '+' : '−'}${Math.abs(game.ratingDelta)}`)
+      d.title = `Rating ${game.ratingDelta > 0 ? 'gained' : 'lost'} in this game`
+      r.append(d)
     }
     meta.append(r)
   }
@@ -450,9 +455,17 @@ for (const chip of document.querySelectorAll('.chip')) {
 
 $('switch-user').addEventListener('click', reset)
 
-for (const id of ['search', 'f-result', 'f-color', 'f-tc']) {
+// Selects fire once, so they re-render immediately. Typing fires per keystroke,
+// and a re-render with 40 boards on screen costs more than one frame, so the
+// search box waits for a pause rather than stuttering under the cursor.
+for (const id of ['f-result', 'f-color', 'f-tc']) {
   $(id).addEventListener('input', () => { state.shown = PAGE; render() })
 }
+let searchTimer
+$('search').addEventListener('input', () => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => { state.shown = PAGE; render() }, 120)
+})
 
 // Keyboard: '/' focuses the filter, arrows walk the list, Enter opens (native).
 document.addEventListener('keydown', (e) => {
@@ -463,7 +476,9 @@ document.addEventListener('keydown', (e) => {
     return
   }
   if (e.key === 'Escape' && e.target.id === 'search') {
+    clearTimeout(searchTimer)
     $('search').value = ''
+    state.shown = PAGE
     render()
     return
   }

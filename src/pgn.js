@@ -74,15 +74,16 @@ const REASON_TEXT = {
 export const reasonText = (r) => REASON_TEXT[r] || r
 
 /**
- * "600" -> "10 min", "300+5" -> "5|5", "1/259200" -> "3 days/move".
+ * "600" -> "10 min", "300+5" -> "5|5", "1/259200" -> "3d/move".
  * Daily games carry "/move" so the control never reads like the timestamp
- * beside it ("3 days" next to "3 days ago" is unparseable).
+ * beside it ("3 days" next to "3 days ago" is unparseable), and it is
+ * abbreviated because the meta line is tight on a phone.
  */
 export function timeControl(tc) {
   if (!tc) return ''
   if (tc.startsWith('1/')) {
     const days = Math.round(Number(tc.slice(2)) / 86400)
-    return `${days} day${days === 1 ? '' : 's'}/move`
+    return `${days}d/move`
   }
   const [base, inc] = tc.split('+')
   const secs = Number(base)

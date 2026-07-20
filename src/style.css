@@ -316,29 +316,39 @@ input::placeholder { color: var(--muted); opacity: 1; }
 
 .row {
   display: grid;
-  grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+  grid-template-columns: 60px minmax(0, 1fr) auto;
   align-items: center;
-  gap: .9rem;
-  padding: .75rem .8rem;
+  gap: .8rem;
+  padding: .7rem .8rem;
   background: var(--band);
 }
+@media (min-width: 560px) { .row { grid-template-columns: 76px minmax(0, 1fr) auto; gap: 1rem; } }
 .row:nth-child(even) { background: var(--band-alt); }
 .row:focus-within { background: var(--flag); color: var(--ink); }
 .row:focus-within .row__meta,
 .row:focus-within .row__opening { color: oklch(0.34 0.04 258); }
 
-/* Crosstable cell: results written the way a crosstable writes them. */
-.score {
-  font: 400 1.15rem/1 var(--mono);
-  height: 2.4rem; display: grid; place-items: center;
+/* The board is the result cell: real final position, plain-word label under it.
+   The word carries the result, so nothing depends on hue. */
+.row__game { border: 1.5px solid var(--ink); background: var(--ink); }
+.row__board { line-height: 0; }
+.row__label {
+  font: 600 .68rem/1 var(--display);
+  padding: .28rem 0; text-align: center;
+  letter-spacing: .02em;
   color: var(--paper);
-  letter-spacing: -.04em;
 }
-.row--win  .score { background: var(--win); }
-.row--loss .score { background: var(--loss); }
-.row--draw .score { background: var(--draw); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .score { color: var(--ink); } }
-:root[data-theme='dark'] .score { color: var(--ink); }
+@media (min-width: 560px) { .row__label { font-size: .74rem; padding: .32rem 0; } }
+.row--win  .row__label { background: var(--win); }
+.row--loss .row__label { background: var(--loss); }
+.row--draw .row__label { background: var(--draw); }
+
+/* Dark mode lightens win/loss/draw, so the label flips to ink to stay at AA.
+   Paper-on-light-green measured 2.25:1. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .row__label { color: var(--ink); }
+}
+:root[data-theme='dark'] .row__label { color: var(--ink); }
 
 .opp {
   font-weight: 700; font-size: var(--step-0); letter-spacing: -.015em;
@@ -356,6 +366,8 @@ input::placeholder { color: var(--muted); opacity: 1; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .side { color: var(--fg); opacity: .75; }
+/* The rating swing is the number people actually feel, so it gets weight. */
+.delta { font-weight: 500; }
 .delta-up { color: var(--win); }
 .delta-down { color: var(--loss); }
 

@@ -54,9 +54,19 @@ spent besides the hero.
 
 ## Result encoding
 
-Results use **crosstable notation**: `1`, `0`, `½`. This is how results are actually written in a
-tournament crosstable, and it satisfies the accessibility requirement structurally: the glyph
-carries the meaning, colour only reinforces it. Never hue alone.
+Results are written in **plain words**: `Won`, `Lost`, `Drew`.
+
+An earlier version used crosstable notation (`1`, `0`, `½`) on the grounds that it is how results
+are actually recorded. That was wrong for this audience. It reads instantly if you play tournaments
+and means nothing if you don't, and the visitor here is someone annoyed who wants an answer, not a
+scoresheet. Chess literacy is not the price of entry.
+
+The word carries the result, so nothing depends on hue, which satisfies the colourblind requirement
+structurally rather than by bolting a shape onto a colour.
+
+The **rating change** (`+24`, `−18`) sits in the meta line at increased weight, coloured to match.
+It is the number players actually feel, and it is the second thing the eye should find after the
+result. The same rule applies to the tally above the list: `4 won, 5 lost`, not `+4 =0 −5`.
 
 ## Imagery
 
@@ -67,7 +77,14 @@ are the first thing anyone reaches for, so every board on the site shows a real 
   after 17.Rd8#. The most famous loss in chess, which is the point.
 - The "Analyse my last loss" button shows the **actual final position of that loss**, rendered from
   the `fen` field chess.com returns. Board orientation flips when the player had black.
+- **Every game row carries its own final position**, and that board *is* the result cell: the
+  `Won` / `Lost` / `Drew` label sits directly beneath it. Boards are 60px on a phone, 76px above
+  560px wide.
 - Empty and error states carry a single piece rather than sitting as bare text.
+
+Forty boards on screen is roughly 580 `<use>` nodes and pushes a full re-render to 24-48ms, past
+the 16.7ms frame budget. The select filters re-render immediately because they fire once; the
+search box is debounced 120ms so typing does not stutter under the cursor.
 
 Squares are kept in the brand's warm range, and the dark square is deliberately light enough that
 black pieces still read on it. Pieces are Cburnett (CC BY-SA 3.0), inlined once as an SVG sprite and
