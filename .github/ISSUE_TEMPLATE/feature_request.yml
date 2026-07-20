@@ -1,0 +1,60 @@
+name: Feature request
+description: Suggest something the site should do
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The site has one job: get someone from arriving to a running engine analysis
+        in under ten seconds, on a phone, on a slow connection. Features that make
+        that path longer get cut, so it helps to say where yours fits.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is the problem?
+      description: Describe the situation, not the solution. What were you trying to do?
+      placeholder: I play a lot of blitz and I want to see which openings I lose with most.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like it to do?
+      placeholder: A breakdown of win rate per opening, with the worst one highlighted.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Does this affect the ten-second path?
+      description: The path is arrive, type a username, click once, analysis opens.
+      options:
+        - No, it is an extra view or an option
+        - It adds a step but replaces two
+        - Yes, it changes the main flow
+        - Not sure
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints this has to live with
+      description: >
+        The site is static files on GitHub Pages. There is no server, no database,
+        no API keys, and no build-time secrets. That is what makes hosting free and
+        the privacy claim true, so it is not negotiable.
+      options:
+        - label: This can work entirely in the browser, with no backend
+          required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Anything else
+      description: Prior art, a link to a site that does it well, or a sketch.
+    validations:
+      required: false

@@ -189,11 +189,16 @@ Boards are data, never decoration. Every board on the site shows a real position
 
 ## Contributing
 
-Issues and pull requests welcome: <https://github.com/roeibh/check-please/issues>
+Issues and pull requests welcome. There are templates for
+[bugs and feature requests](https://github.com/roeibh/check-please/issues/new/choose).
 
 Keep it static. No backend, no API keys, no build-time secrets. That constraint is what makes the
 site free to host and the privacy claim true. Run `npm test` before opening a PR, and if you change
 how the APIs are called, update the findings above.
+
+**Using an AI agent?** Point it at [`AGENTS.md`](AGENTS.md) first. It carries the constraints, the
+verified API behaviour, and a list of the bugs this repo has already shipped so they do not come
+back. Most of them looked fine until they were measured.
 
 ## Credit
 

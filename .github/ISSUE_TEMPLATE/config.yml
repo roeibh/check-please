@@ -1,0 +1,21 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Try the site
+    url: https://roeibh.github.io/check-please/
+    about: Check the live version first. It may already be fixed.
+
+  - name: Wrong game data, missing games, or a wrong rating
+    url: https://www.chess.com/member
+    about: >
+      Game data comes straight from chess.com's public API and is never edited here.
+      If it is wrong on chess.com, it is wrong here too.
+
+  - name: The analysis board itself
+    url: https://lichess.org/contact
+    about: >
+      Analysis is Lichess's, not ours. Engine output, evaluation, and board behaviour
+      are theirs.
+
+  - name: Support Lichess
+    url: https://lichess.org/patron
+    about: They provide the analysis free as a nonprofit. They deserve the donation more than we do.
