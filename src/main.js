@@ -1,6 +1,6 @@
 import { archives, monthGames, normalize, NotFound, Unreachable } from './chesscom.js'
 import { playerResult, openingName, timeControl, withRatingDeltas, relativeTime, extractMoves, reasonText } from './pgn.js'
-import { analysisUrl, bestAnalysisTarget, submitImport } from './lichess.js'
+import { analysisUrl, bestAnalysisTarget, importGame, RateLimited } from './lichess.js'
 import { boardSvg, pieceSvg, ensureSprite } from './board.js'
 
 const $ = (id) => document.getElementById(id)
@@ -293,7 +293,8 @@ function renderLastLoss() {
     cta.onclick = () => nudgeLater()
   } else {
     cta.href = '#'
-    cta.onclick = (e) => { e.preventDefault(); submitImport(loss.pgn); nudgeLater() }
+    // No move-list URL (game too long): import instead.
+    cta.onclick = (e) => { e.preventDefault(); runImport(loss.pgn, null) }
   }
 }
 
@@ -419,7 +420,8 @@ function actions(game) {
     if (target.kind === 'import') {
       e.preventDefault()
       toast('Game is long, importing to Lichess instead.')
-      submitImport(game.pgn)
+      runImport(game.pgn, null)
+      return
     }
     nudgeLater()
   })
@@ -437,6 +439,40 @@ function actions(game) {
  * Lichess still renders a "Request a computer analysis" button. Verified
  * 2026-07-20, and the copy here is careful not to promise otherwise.
  */
+/**
+ * Import a game, then send a tab to it.
+ *
+ * The blank tab is opened synchronously inside the click, before any await.
+ * Opening it after the fetch resolves loses the user gesture and gets blocked
+ * as a popup. `noopener` is not passed because that returns null and there
+ * would be no handle to navigate; the opener is severed after navigating
+ * instead.
+ */
+async function runImport(pgn, btn) {
+  const tab = window.open('', '_blank')
+  const label = btn?.textContent
+  if (btn) { btn.disabled = true; btn.textContent = 'Opening…' }
+
+  try {
+    const url = await importGame(pgn)
+    if (tab) {
+      tab.location = url
+      tab.opener = null
+    } else {
+      location.href = url // popup blocked: use this tab rather than doing nothing
+    }
+    toast('Click "Request a computer analysis" on Lichess.')
+    nudgeLater()
+  } catch (err) {
+    tab?.close()
+    toast(err instanceof RateLimited
+      ? 'Lichess is rate limiting imports. Wait a minute and try again.'
+      : "Couldn't import to Lichess. The Analyse button still works.")
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = label }
+  }
+}
+
 function reviewButton(game) {
   const b = el('button', 'review', 'Review')
   b.type = 'button'
@@ -445,16 +481,7 @@ function reviewButton(game) {
     'Takes about a minute. Imported games are public on Lichess.'
   b.setAttribute('aria-label',
     'Full review of this game on Lichess with blunders and accuracy. Imports the game, which makes it public on Lichess. Opens in a new tab.')
-  b.addEventListener('click', () => {
-    // A form POST is a navigation, so the new tab may take a moment to appear.
-    // Show that something happened rather than leaving the button looking dead.
-    b.disabled = true
-    b.textContent = 'Opening…'
-    submitImport(game.pgn)
-    toast('Opening Lichess. Click "Request a computer analysis" there.')
-    nudgeLater()
-    setTimeout(() => { b.disabled = false; b.textContent = 'Review' }, 2500)
-  })
+  b.addEventListener('click', () => runImport(game.pgn, b))
   return b
 }
 

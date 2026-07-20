@@ -28,38 +28,47 @@ export function fenUrl(game) {
   return `https://lichess.org/analysis/standard/${encodeURIComponent(game.fen)}`
 }
 
+export class RateLimited extends Error {}
+export class ImportFailed extends Error {}
+
 /**
- * Fallback for games too long to fit a URL, and the way to request Lichess's
- * own server-side computer analysis. A real form POST is a navigation, not XHR,
- * so CORS can't block it and it works even if the API is down.
+ * Import a game and return its Lichess URL.
+ *
+ * This uses `/api/import`, NOT a form POST to `/import`. A cross-origin form
+ * POST to `/import` is rejected outright with 403 "Cross origin request
+ * forbidden": Lichess checks the request origin, so the fact that a form
+ * submission is a navigation rather than XHR does not help. `/api/import`
+ * is the endpoint built for other origins and sends
+ * `access-control-allow-origin: *`.
+ *
+ * `Accept: application/json` is required. Without it the response is a 303
+ * whose Location header JS cannot read.
+ *
+ * Verified 2026-07-20. Importing the same PGN twice returns the same id,
+ * so repeat clicks do not burn extra quota.
  */
-export function importForm(pgn, { analyse = true } = {}) {
-  const form = document.createElement('form')
-  form.method = 'POST'
-  form.action = 'https://lichess.org/import' // NOT /paste — that's the GET page
-  form.target = '_blank'
-  form.rel = 'noopener'
-  form.hidden = true
-
-  const pgnField = document.createElement('textarea')
-  pgnField.name = 'pgn'
-  pgnField.value = pgn
-  form.append(pgnField)
-
-  if (analyse) {
-    const a = document.createElement('input')
-    a.name = 'analyse'
-    a.value = 'true'
-    form.append(a)
+export async function importGame(pgn) {
+  let res
+  try {
+    res = await fetch('https://lichess.org/api/import', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({ pgn }),
+    })
+  } catch {
+    throw new ImportFailed("Couldn't reach Lichess.")
   }
-  return form
-}
 
-export function submitImport(pgn, opts) {
-  const form = importForm(pgn, opts)
-  document.body.append(form)
-  form.submit()
-  form.remove()
+  // Anonymous imports are capped at 100 games/hour.
+  if (res.status === 429) throw new RateLimited('Lichess is rate limiting imports.')
+  if (!res.ok) throw new ImportFailed(`Lichess returned ${res.status}.`)
+
+  const { url } = await res.json().catch(() => ({}))
+  if (!url) throw new ImportFailed('Lichess did not return a game URL.')
+  return url
 }
 
 /** The best available entry point for a game, preferring the zero-cost one. */

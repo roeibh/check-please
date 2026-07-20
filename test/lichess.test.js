@@ -1,5 +1,8 @@
-import { describe, it, expect } from 'vitest'
-import { analysisUrl, fenUrl, bestAnalysisTarget, MAX_URL } from '../src/lichess.js'
+import { describe, it, expect, vi, afterEach } from 'vitest'
+import {
+  analysisUrl, fenUrl, bestAnalysisTarget, MAX_URL,
+  importGame, RateLimited, ImportFailed,
+} from '../src/lichess.js'
 
 const gameWith = (movetext) => ({ pgn: `[White "a"]\n\n${movetext}` })
 
@@ -60,6 +63,49 @@ describe('fenUrl', () => {
 
   it('returns null without a FEN', () => {
     expect(fenUrl({})).toBeNull()
+  })
+})
+
+describe('importGame', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  const ok = (body) => vi.fn().mockResolvedValue({
+    ok: true, status: 200, json: async () => body,
+  })
+
+  it('posts to /api/import, not the /import web form', async () => {
+    // A cross-origin form POST to /import is rejected with 403
+    // "Cross origin request forbidden". Only the API endpoint allows it.
+    const f = ok({ id: 'abc', url: 'https://lichess.org/abc' })
+    vi.stubGlobal('fetch', f)
+    await importGame('[W "a"]\n\n1. e4 *')
+    expect(f.mock.calls[0][0]).toBe('https://lichess.org/api/import')
+  })
+
+  it('sends Accept: application/json, without which the reply is an unreadable 303', async () => {
+    const f = ok({ url: 'https://lichess.org/abc' })
+    vi.stubGlobal('fetch', f)
+    await importGame('pgn')
+    expect(f.mock.calls[0][1].headers.Accept).toBe('application/json')
+    expect(f.mock.calls[0][1].method).toBe('POST')
+  })
+
+  it('returns the game url', async () => {
+    vi.stubGlobal('fetch', ok({ id: 'abc', url: 'https://lichess.org/abc' }))
+    expect(await importGame('pgn')).toBe('https://lichess.org/abc')
+  })
+
+  it('flags rate limiting separately, since it needs a different message', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 429 }))
+    await expect(importGame('pgn')).rejects.toBeInstanceOf(RateLimited)
+  })
+
+  it('fails clearly on a network error or a junk reply', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('offline')))
+    await expect(importGame('pgn')).rejects.toBeInstanceOf(ImportFailed)
+
+    vi.stubGlobal('fetch', ok({}))  // 200 but no url
+    await expect(importGame('pgn')).rejects.toBeInstanceOf(ImportFailed)
   })
 })
 

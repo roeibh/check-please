@@ -39,7 +39,7 @@ it and do not assume it.** Several details are counterintuitive:
 | chess.com usernames | Non-lowercase gets a **301**, not a 200. Lowercase client-side. |
 | `If-None-Match` | The preflight allows `Origin` only, so a conditional request from JS is **blocked outright**. `curl` gets a 304 because `curl` is not subject to CORS. Do not "fix" caching by adding it. |
 | `POST /api/import` | Returns `{id, url}` **only** with `Accept: application/json`. Otherwise a 303 whose `Location` JS cannot read. |
-| The paste form | Posts to `/import`, not `/paste`. |
+| `/import` (the web form) | **Rejects cross-origin POSTs with 403 "Cross origin request forbidden."** Do not "restore" a form POST to it. Lichess checks the origin server-side, so a missing CSRF token in the HTML proves nothing, and the fact that a form submission is a navigation rather than XHR does not help: this is not a CORS preflight. Use `/api/import`. |
 | `analyse=true` | Does **not** fire for anonymous imports. Lichess still shows a "Request a computer analysis" button. This was documented as automatic for a while because the form field was read but never exercised. |
 | Move judgments | Only exist for **imported** games, never for `/analysis/pgn/...`. An unsaved board has nothing to annotate. |
 | `rating` | Is the **post-game** rating. Verified by checking every delta's sign against its own game's result. Diff against the previous game in the same `time_class`. |
@@ -95,6 +95,16 @@ and re-measure.
 **`#` is legal in SAN.** `Qxf7#` unencoded truncates the URL at the fragment and silently drops the
 mating move. Lichess returns **200 either way**, so no status code reveals it. Moves are
 `encodeURIComponent`-ed; `test/lichess.test.js` pins it.
+
+**Absence of a defence in the HTML is not absence of the defence.** The import fallback was built
+on "there is no CSRF token in Lichess's paste form, so an anonymous form POST works." Wrong: the
+check is server-side and the POST 403s. Verifying a client-side artifact tells you nothing about
+what the server enforces. Send the request.
+
+**A new tab must be opened inside the click, before any `await`.** Opening it after a fetch
+resolves loses the user gesture and gets blocked as a popup. Open it blank, then set `location`
+when the URL arrives, then null the opener. Passing `noopener` to `window.open` returns null and
+leaves no handle to navigate.
 
 **Reading a form field is not testing it.** `analyse=true` was documented here as "requests
 server-side analysis at import time" purely because the field exists in Lichess's paste form.
