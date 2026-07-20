@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/hero.png" width="860" alt="Check Please landing page: a goldenrod field with the headline 'Find out what you missed', a username input, and the final position of the Opera Game.">
+  <img src="docs/hero.png" width="860" alt="Check Please landing page: the headline 'Find out what you missed', a chess.com username input, and the final position of the Opera Game.">
 </p>
 
 > Your chess.com games, opened in Lichess's engine. No signup, no paywall, no server.
