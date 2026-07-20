@@ -119,6 +119,37 @@ describe('withRatingDeltas', () => {
     withRatingDeltas(games, 'me')
     expect(games[0].ratingDelta).toBe(null)
   })
+
+  // A real case from 2_queens_1cup: two daily games both at 1071. The change is
+  // genuinely zero, which must stay distinguishable from "not known yet".
+  it('reports a real zero change as 0, not null', () => {
+    const game = (rating) => ({
+      time_class: 'daily', rated: true,
+      white: { username: 'me', rating, result: 'timeout' },
+      black: { username: 'x', result: 'win' },
+    })
+    const games = [game(1071), game(1071)] // newest first
+    withRatingDeltas(games, 'me')
+    expect(games[0].ratingDelta).toBe(0)    // changed by nothing
+    expect(games[1].ratingDelta).toBe(null) // nothing earlier loaded
+    // The two must not be conflated: 0 is falsy and null is falsy.
+    expect(games[0].ratingDelta).not.toBe(games[1].ratingDelta)
+  })
+
+  it('signs match each game own result', () => {
+    // Ratings are POST-game (verified against the live API), so diffing against
+    // the previous game attributes the swing to the right game.
+    const g = (rating, result) => ({
+      time_class: 'daily', rated: true,
+      white: { username: 'me', rating, result },
+      black: { username: 'x', result: result === 'win' ? 'resigned' : 'win' },
+    })
+    const games = [g(1071, 'win'), g(1027, 'win'), g(975, 'timeout'), g(1019, 'win')]
+    withRatingDeltas(games, 'me')
+    expect(games[0].ratingDelta).toBe(44)   // win, positive
+    expect(games[1].ratingDelta).toBe(52)   // win, positive
+    expect(games[2].ratingDelta).toBe(-44)  // loss, negative
+  })
 })
 
 describe('tag', () => {

@@ -133,11 +133,8 @@ a { color: inherit; }
   gap: 1rem; padding-block: 1.05rem;
 }
 
-.brand { display: flex; align-items: center; gap: .55rem; text-decoration: none; }
-.brand__mark {
-  width: 11px; height: 24px;
-  background: linear-gradient(to top, var(--flag) 62%, var(--rail-bg) 62%);
-}
+.brand { display: flex; align-items: center; gap: .5rem; text-decoration: none; }
+.brand__mark { width: 28px; height: 28px; display: block; }
 .brand__text {
   font: 700 var(--step-0)/1 var(--display);
   letter-spacing: -.015em;
@@ -367,9 +364,10 @@ input::placeholder { color: var(--muted); opacity: 1; }
 }
 .side { color: var(--fg); opacity: .75; }
 /* The rating swing is the number people actually feel, so it gets weight. */
-.delta { font-weight: 500; }
+.delta { font-weight: 500; cursor: help; }
 .delta-up { color: var(--win); }
 .delta-down { color: var(--loss); }
+.delta-none { color: var(--muted); font-weight: 400; }
 
 .row__actions { display: flex; align-items: center; gap: .2rem; }
 

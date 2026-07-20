@@ -46,6 +46,33 @@ All values are OKLCH. No pure black or white anywhere; every neutral is tinted t
 Art direction differs by section, which the brand register permits: the landing hero is a drenched
 flag field; the results view is quiet paper or ink so the data reads.
 
+## Mark
+
+A **knight silhouette**, amber on ink, used for the favicon, the app icons, the header, and the OG
+image. Drawn from the Cburnett knight outline as a solid shape with the eye knocked out; the
+internal line work in the original goes muddy below about 24px.
+
+The brief warns against Staunton silhouettes as the obvious reach, and that holds for decoration.
+A favicon is the exception: it has 16 pixels to say "chess" and no room for cleverness. Everywhere
+the site has room to be less obvious, it is: real positions rather than piece clip art.
+
+The header previously used an abstract bar echoing the eval rail, which read as a UI element rather
+than an identity.
+
+## Rating change
+
+Four distinct states, because collapsing them hides real information:
+
+| State | Shown | Meaning |
+|---|---|---|
+| Gained / lost | `+24`, `−18` | Coloured, weighted |
+| No change | `±0` | The game genuinely moved nothing |
+| Not computable | `—` | Nothing earlier in that pool has loaded yet |
+| Unrated | `unrated` | Casual game, never affects rating |
+
+`±0` and `—` used to render identically as nothing, because the code tested `if (delta)` and `0` is
+falsy. A real zero and an unknown are different facts and must look different.
+
 ## Signature element
 
 **The evaluation rail**, page-edge, full height, filled to the win rate across currently visible

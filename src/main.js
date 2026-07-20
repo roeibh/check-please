@@ -323,10 +323,27 @@ function row(game) {
 
   if (me.rating) {
     const r = el('span', null, String(me.rating))
-    if (game.ratingDelta) {
-      const d = el('span', `delta ${game.ratingDelta > 0 ? 'delta-up' : 'delta-down'}`,
-        ` ${game.ratingDelta > 0 ? '+' : '−'}${Math.abs(game.ratingDelta)}`)
-      d.title = `Rating ${game.ratingDelta > 0 ? 'gained' : 'lost'} in this game`
+    const dv = game.ratingDelta
+
+    if (!game.rated) {
+      const d = el('span', 'delta delta-none', ' unrated')
+      d.title = 'Casual game. It does not change your rating.'
+      r.append(d)
+    } else if (dv === 0) {
+      // A genuine zero is not the same as an unknown one, and `if (delta)`
+      // used to swallow it because 0 is falsy.
+      const d = el('span', 'delta delta-none', ' ±0')
+      d.title = 'Your rating did not change in this game.'
+      r.append(d)
+    } else if (typeof dv === 'number') {
+      const d = el('span', `delta ${dv > 0 ? 'delta-up' : 'delta-down'}`,
+        ` ${dv > 0 ? '+' : '−'}${Math.abs(dv)}`)
+      d.title = `Rating ${dv > 0 ? 'gained' : 'lost'} in this game`
+      r.append(d)
+    } else {
+      // Oldest loaded game in its pool: there is nothing earlier to diff against.
+      const d = el('span', 'delta delta-none', ' —')
+      d.title = 'No earlier game in this time control has loaded yet, so the rating change cannot be worked out. Load an earlier month to fill it in.'
       r.append(d)
     }
     meta.append(r)
