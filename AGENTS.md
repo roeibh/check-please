@@ -143,6 +143,13 @@ There are two traps inside that trap, and both have produced confidently wrong n
 past the 16.7ms frame budget, which is why the search box is debounced and the selects are not.
 If you add per-row content, re-measure.
 
+**Reserve space for anything that loads in late.** `main` has a `min-height`, and the CTA card has
+a fixed `min-height` matching its board. Without them, the page painted with an empty `main`, the
+footer rendered under the header, then games loaded and shoved everything down ~770px. That single
+drop was the entire layout-shift (CLS) score: 0.41, four times Google's "poor" line. With the space
+reserved it is 0.017. Measure CLS with `PerformanceObserver({type:'layout-shift'})` on a fresh load,
+not a warm one. The guess that it was "the fonts" was wrong; the trace named `.wrap` and the footer.
+
 **Bundle size is measured.** First load is about 17 kB gzipped over the wire. Check with curl and
 `Accept-Encoding: gzip`, not by guessing from the build output.
 

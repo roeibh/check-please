@@ -187,7 +187,11 @@ a { color: inherit; }
   border: 1.5px solid currentColor;
 }
 
-main { display: block; }
+/* Reserve at least a screen so the footer paints below the fold from the
+   start. Without this, main is 0px tall until games load, the footer renders
+   under the header, then gets shoved down ~770px when content arrives. That
+   drop was the page's whole layout-shift score. */
+main { display: block; min-height: 82vh; }
 
 /* ── Buttons, shadcn shapes ───────────────────────────────── */
 .btn-primary, .btn-outline, .btn-ghost {
@@ -294,6 +298,9 @@ input::placeholder { color: var(--muted-foreground); opacity: 1; }
   background: var(--card); color: var(--foreground);
   border: 1px solid var(--border); border-radius: var(--radius-lg);
   text-decoration: none; padding: .9rem 1rem;
+  /* Height of the board (76px) plus padding, held constant so the card does
+     not grow when the board loads in and shove the controls down. */
+  min-height: 104px;
   margin-bottom: 1.6rem;
   transition: border-color .16s var(--out), background-color .16s var(--out);
 }
